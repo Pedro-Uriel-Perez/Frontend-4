@@ -7,7 +7,6 @@
 import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, onValue, Database, update, get } from 'firebase/database';
-import { getAnalytics } from "firebase/analytics";
 import { IChatActivo, IMensaje, IPaciente, IultimoMensaje } from '../models/chat.model';
 
 
@@ -88,7 +87,7 @@ interface SpotifyTokenResponse {
 
 
     constructor(
-    private http: HttpClient, 
+    private http: HttpClient,
     private socialAuthService: SocialAuthService
   ) {
     // Inicialización del usuario
