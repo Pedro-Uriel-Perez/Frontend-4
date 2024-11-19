@@ -1,0 +1,129 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #93aad2;
+    margin: 0;
+    padding: 20px;
+}
+
+.hospital-tab {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px; /* Added margin-top to separate the calendar and hospitals */
+    flex-wrap: wrap; /* Allows wrapping on smaller screens */
+}
+
+.hospital {
+    background-color: #fff;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: calc(20% - 30px); 
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.hospital h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #000000; 
+}
+
+.notification {
+    background-color: #2cabce; 
+    color: #333;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+}
+
+.patient-list ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.patient-list ul li {
+    margin-bottom: 5px;
+    color: #666;
+}
+
+.patient-list ul li:first-child {
+    font-weight: bold;
+}
+
+#calendar {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 400px; /* Increased width */
+    overflow: hidden;
+    margin: 0 auto; /* Centered the calendar */
+}
+
+#calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    background: #4CAF50;
+    color: white;
+}
+
+#calendar-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#calendar-body {
+    padding: 10px;
+}
+
+#days-of-week {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#calendar-dates {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+#calendar-dates div {
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#calendar-dates div:hover {
+    background: #e0e0e0;
+}
+
+#calendar-dates .today {
+    background: #4CAF50;
+    color: white;
+}
+
+/* Media Queries for Mobile Devices */
+@media (max-width: 768px) {
+    .hospital-tab {
+        flex-direction: column;
+        align-items: center;
+    }
+    .hospital {
+        width: 80%; /* Adjust width for mobile */
+        margin-bottom: 20px; /* Add space between items */
+    }
+    #calendar {
+        width: 100%; /* Full width on mobile */
+        margin-bottom: 20px; /* Add space below calendar */
+}
+}

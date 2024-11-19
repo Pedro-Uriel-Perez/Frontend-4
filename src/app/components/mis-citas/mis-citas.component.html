@@ -1,0 +1,13 @@
+<div class="mis-citas">
+    <h2>Mis Citas</h2>
+    <ul *ngIf="citas.length > 0; else noCitas">
+      <li *ngFor="let cita of citas">
+        Fecha: {{ cita.fechaFormateada }} - 
+        Hora: {{ cita.horaFormateada }} - 
+        Médico: {{ cita.nombreMedico }}
+      </li>
+    </ul>
+    <ng-template #noCitas>
+      <p>No tienes citas programadas.</p>
+    </ng-template>
+  </div>

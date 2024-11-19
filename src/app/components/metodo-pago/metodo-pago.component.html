@@ -1,0 +1,45 @@
+<div class="paypal-container">
+  <h2 class="section-title">Pagar con PayPal</h2>
+  
+  <div class="paypal-section">
+    <div #paypalButton class="paypal-button"></div>
+  </div>
+</div>
+
+<!-- Modal normal para mensajes generales -->
+<div *ngIf="modalVisible" class="modal">
+  <div class="modal-content">
+      <p>{{mensaje}}</p>
+      <button (click)="cerrarModal()" class="modal-close">Cerrar</button>
+  </div>
+</div>
+
+<!-- Modal de éxito modificado -->
+<div *ngIf="mostrarModalExito" class="modal modal-exito">
+  <div class="modal-content success">
+      <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>¡Pago Exitoso!</h2>
+      
+      <div class="message-container">
+          <p [style.white-space]="'pre-line'">{{mensajeExito}}</p>
+      </div>
+
+      <div class="email-notification" *ngIf="mensajeExito.includes('correo')">
+          <div class="email-sent-icon">
+              <i class="fas fa-envelope"></i>
+              <div class="email-animation">
+                  <div class="email-circle"></div>
+              </div>
+          </div>
+          <p class="email-text">verifica tu correo</p>
+      </div>
+
+      <!-- Botón de salir -->
+      <button (click)="salir()" class="exit-button">
+          <i class="fas fa-sign-out-alt"></i>
+          Salir
+      </button>
+  </div>
+</div>

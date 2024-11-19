@@ -1,0 +1,89 @@
+/* General Styles */
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.card {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  border: none;
+}
+
+.card-header {
+  background-color: #007bff;
+  color: white;
+  border-radius: 10px 10px 0 0;
+}
+
+.card-header h2,
+.card-header h3 {
+  margin: 0;
+  font-weight: 500;
+}
+
+.card-body {
+  background-color: #f9f9f9;
+  padding: 20px;
+}
+
+/* Input Group */
+.input-group {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.input-group input {
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.input-group .btn {
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.input-group .btn-secondary {
+  margin-left: 10px;
+}
+
+/* Lists */
+.list-group-item {
+  background-color: #f0f8ff;
+  color: #333;
+  border: none;
+}
+
+.list-group-item:hover {
+  background-color: #e0f0ff;
+  transition: background-color 0.3s ease;
+}
+
+/* Loading Spinner */
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3rem;
+}
+
+.spinner-border .visually-hidden {
+  font-size: 1.2rem;
+}
+
+/* Error Message */
+.alert {
+  border-radius: 10px;
+  font-weight: 500;
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .card-body {
+    padding: 15px;
+  }
+}

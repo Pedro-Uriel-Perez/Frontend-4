@@ -1,0 +1,213 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #e0f7fa 0%, #80deea 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.login-container {
+  max-width: 400px;
+  padding: 40px;
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.login-container h2 {
+  color: #007779;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group {
+  margin-bottom: 25px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 16px;
+  border: 1px solid #b2dfdb;
+  border-radius: 5px;
+  background-color: #fff;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #009688;
+}
+
+.form-group label {
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #00796b;
+}
+
+.btn-login {
+  background-color: #009688;
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
+  width: 100%;
+  margin-top: 20px;
+}
+
+.btn-login:hover {
+  background-color: #00796b;
+  transform: translateY(-2px);
+}
+
+.btn-login:disabled {
+  background-color: #b2dfdb;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #e57373;
+  margin-top: 5px;
+  font-size: 14px;
+}
+
+.register-question {
+  margin-top: 30px;
+  font-size: 14px;
+  color: #616161;
+}
+
+.register-question a {
+  color: #009688;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.register-question a:hover {
+  text-decoration: underline;
+}
+
+/* Estilos para los botones de redes sociales */
+.social-login {
+  margin-top: 20px;
+}
+
+.btn-social {
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px auto 0;
+  width: 100%;
+}
+
+.btn-social:hover {
+  transform: translateY(-2px);
+}
+
+.btn-social i {
+  margin-right: 10px;
+  font-size: 20px;
+}
+
+.btn-github {
+  background-color: #24292e;
+}
+
+.btn-github:hover {
+  background-color: #2c3e50;
+}
+
+.btn-facebook {
+  background-color: #3b5998;
+}
+
+.btn-facebook:hover {
+  background-color: #2d4373;
+}
+
+.btn-twitter {
+  background-color: #1da1f2;
+}
+
+.btn-twitter:hover {
+  background-color: #0c85d0;
+}
+
+/* Estilos del footer */
+.footer {
+  width: 100%;
+  background: #25D0EB;
+  min-height: 100px;
+  padding: 20px 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.social-icon {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon-elem {
+  margin: 0 10px;
+}
+
+.icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.menu {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.menu-elem {
+  margin: 0 15px;
+}
+
+.menu-icon {
+  color: #0a0101;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.text {
+  color: #050303;
+}
+
+@media (max-width: 480px) {
+  .login-container {
+    width: 90%;
+    padding: 20px;
+  }
+}

@@ -1,0 +1,53 @@
+<div class="container">
+    <h1>Selecciona tu Paquete de Suscripción</h1>
+    <div class="card-container">
+        <div class="card">
+            <div class="card-header">
+                <h2>Básico</h2>
+                <div class="price">$100<span>/mes</span></div>
+            </div>
+            <div class="card-content">
+                <ul>
+                    <li>1-3 Médicos</li>
+                    <li>Soporte básico</li>
+                    <li>Acceso limitado a funciones</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <button (click)="seleccionarPaquete(100)">Suscribirse</button>
+            </div>
+        </div>
+        <div class="card featured">
+            <div class="card-header">
+                <h2>Avanzado</h2>
+                <div class="price">$250<span>/mes</span></div>
+            </div>
+            <div class="card-content">
+                <ul>
+                    <li>5-10 Médicos</li>
+                    <li>Soporte prioritario</li>
+                    <li>Acceso completo a funciones</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <button (click)="seleccionarPaquete(250)">Suscribirse</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h2>Premium</h2>
+                <div class="price">$500<span>/mes</span></div>
+            </div>
+            <div class="card-content">
+                <ul>
+                    <li>+16 Médicos</li>
+                    <li>Soporte 24/7</li>
+                    <li>Funciones exclusivas</li>
+                </ul>
+            </div>
+            <div class="card-footer">
+                <button (click)="seleccionarPaquete(500)">Suscribirse</button>
+            </div>
+        </div>
+    </div>
+</div>

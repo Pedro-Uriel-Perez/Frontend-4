@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial Médico</title>
+  <link rel="stylesheet" href="historial-paciente.component.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Historial Médico de {{nombrePaciente}}</h1>
+    </header>
+    
+    <main>
+      <div *ngIf="errorMessage" class="error-message">
+        <p>{{errorMessage}}</p>
+      </div>
+
+      <div *ngIf="historialMedico.length === 0 && !errorMessage" class="no-registros">
+        <p>No se encontraron registros en tu historial médico.</p>
+      </div>
+
+      <div *ngFor="let registro of historialMedico" class="registro-medico">
+        <h2>Consulta del {{registro.fechaFormateada}}</h2>
+        <div class="registro-info">
+          <p><strong>Hora:</strong> {{registro.horaFormateada}}</p>
+          <p><strong>Médico:</strong> {{registro.nombreMedico || 'No especificado'}}</p>
+          <p><strong>Especialidad:</strong> {{registro.especialidad || 'No especificada'}}</p>
+        </div>
+        <div class="registro-detalles">
+          <h3>Diagnóstico</h3>
+          <p>{{registro.diagnostico || 'No especificado'}}</p>
+          <h3>Tratamiento</h3>
+          <p>{{registro.tratamiento || 'No especificado'}}</p>
+          <h3>Observaciones</h3>
+          <p>{{registro.observaciones || 'No especificadas'}}</p>
+        </div>
+      
+
+      
+      </div>
+    </main>
+  </div>
+</body>
+</html>

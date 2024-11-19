@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="login.component.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm" class="login-form">
+            <div class="form-group">
+                <label for="correo">Correo electrónico</label>
+                <input type="email" id="correo" name="correo" [(ngModel)]="correo" placeholder="Correo electrónico" required>
+                <span class="error" *ngIf="loginForm.controls['correo']?.invalid && loginForm.controls['correo']?.touched">
+                    Por favor, ingrese un correo electrónico válido.
+                </span>
+            </div>
+            
+            <div class="form-group">
+                <label for="contrase">Contraseña</label>
+                <input type="password" id="contrase" name="contrase" [(ngModel)]="contrase" placeholder="Contraseña" required>
+            </div>
+            
+            <button type="submit" class="btn-login" [disabled]="loginForm.invalid">INICIAR SESIÓN</button>
+        </form>
+
+        <div class="register-question">
+            <p>¿Aún no tienes una cuenta? <a routerLink="/signup">Regístrate aquí</a></p>
+        </div>
+
+        <div class="social-login">
+            <button (click)="loginWithGitHub()" class="btn-social btn-github">
+                <i class="fab fa-github"></i> Iniciar sesión con GitHub
+            </button>
+            <button (click)="signInWithFB()" class="btn-social btn-facebook">
+                <i class="fab fa-facebook-f"></i> Iniciar sesión con Facebook
+            </button>
+        </div>
+    
+        <div *ngIf="errorMessage" class="error">
+            {{ errorMessage }}
+        </div>
+
+        <div *ngIf="loggedIn">
+            <img src="{{user.response.picture.data.url}}" style="width: 100px;"/>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <ul class="social-icon">
+            <li class="icon-elem">
+                <a href="#" class="icon">
+                    <img src="https://static.vecteezy.com/system/resources/previews/023/986/704/non_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png" alt="YouTube">
+                </a>
+            </li>
+            <li class="icon-elem">
+                <a href="#" class="icon">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Instagram_logo_2022.svg/1000px-Instagram_logo_2022.svg.png" alt="Instagram">
+                </a>
+            </li>
+            <li class="icon-elem">
+                <a href="#" class="icon">
+                    <img src="https://i.pinimg.com/originals/f3/53/5d/f3535dc3f95e71506f7c80755610176c.png" alt="WhatsApp">
+                </a>
+            </li>
+            <li class="icon-elem">
+                <a href="#" class="icon">
+                    <img src="https://static.vecteezy.com/system/resources/previews/018/930/698/original/facebook-logo-facebook-icon-transparent-free-png.png" alt="Facebook">
+                </a>
+            </li>
+            <li class="icon-elem">
+                <a routerLink="#" class="icon">
+                    <img src="https://cdn.icon-icons.com/icons2/2642/PNG/512/google_mail_gmail_logo_icon_159346.png" alt="Email">
+                </a>
+            </li>
+        </ul>
+        <ul class="menu">
+            <li class="menu-elem">
+                <a routerLink="/home" class="menu-icon">Inicio</a>
+            </li>
+            <li class="menu-elem">
+                <a routerLink="/contact" class="menu-icon">Contacto</a>
+            </li>
+            <li class="menu-elem">
+                <a routerLink="/services" class="menu-icon">Sobre Nosotros</a>
+            </li>
+        </ul>
+        <p>&copy; 2024 Citas Médicas. Todos los derechos reservados.</p>
+    </footer>
+</body>
+</html>

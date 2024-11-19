@@ -1,0 +1,152 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-image: url('https://images.unsplash.com/photo-1569470451072-68314f596aec?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHx8fA%3D%3D');
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.container {
+    background-color: rgba(57, 158, 216, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    display: flex;
+    width: 100%;
+    max-width: 1200px; /* Aumentado de 1000px */
+    color: #141111;
+}
+
+.contact-info {
+    background-color: rgba(255, 255, 255, 0.1);
+    padding: 40px;
+    width: 35%; /* Reducido de 40% */
+}
+
+.contact-info h1 {
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+
+.info p {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.info i {
+    margin-right: 10px;
+    color: #0d0b0b;
+}
+
+.social-icons {
+    display: flex;
+    margin-top: 20px;
+}
+
+.social-icons a {
+    background-color: #ece9e8;
+    color: #100f0f;
+    width: 35px;
+    height: 35px;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s;
+}
+
+.social-icons a:hover {
+    background-color: #fbf6f6;
+}
+
+.hospital-form {
+    padding: 40px;
+    width: 65%; /* Aumentado de 60% */
+}
+
+.form-group {
+    margin-bottom: 25px; /* Aumentado de 20px para dar más espacio vertical */
+    position: relative;
+}
+
+.form-row {
+    display: flex;
+    gap: 25px; /* Aumentado de 20px */
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+input {
+    width: 100%;
+    padding: 12px 0; /* Aumentado de 10px */
+    font-size: 16px;
+    color: #080707;
+    border: none;
+    border-bottom: 1px solid #fff;
+    outline: none;
+    background: transparent;
+}
+
+label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 12px 0; /* Aumentado de 10px */
+    font-size: 16px;
+    color: #0f0707;
+    pointer-events: none;
+    transition: 0.5s;
+}
+
+input:focus ~ label,
+input:valid ~ label {
+    top: -20px;
+    left: 0;
+    color: #2d36db;
+    font-size: 12px;
+}
+
+button {
+    background-color: #2323c5;
+    color: #fff;
+    padding: 12px 24px; /* Aumentado de 10px 20px */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+button:hover {
+    background-color: #2f7cda;
+}
+
+button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+    .container {
+        flex-direction: column;
+    }
+    .contact-info, .hospital-form {
+        width: 100%;
+    }
+}

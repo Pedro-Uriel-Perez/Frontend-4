@@ -1,0 +1,71 @@
+<div class="container">
+    <div class="contact-info">
+      <h1>REGISTRA TU HOSPITAL</h1>
+      <h1>¡CONTACTATE CON NOSOTROS!</h1>
+      <div class="info">
+        <p><i class="fas fa-phone"></i> +415 177 52 65</p>
+        <p><i class="fas fa-envelope"></i> citasmedicas.com</p>
+        <p><i class="fas fa-map-marker-alt"></i> Dolores Hidalgo</p>
+      </div>
+      <div class="social-icons">
+        <a href="#"><i class="fab fa-facebook-f"></i></a>
+        <a href="#"><i class="fab fa-instagram"></i></a>
+        <a href="#"><i class="fab fa-twitter"></i></a>
+      </div>
+    </div>
+  
+    <!-- Formulario de registro -->
+    <form (ngSubmit)="procesarFormulario()" class="hospital-form">
+      <div class="form-group">
+        <input type="text" id="nombreHospital" [(ngModel)]="hospital.nombreHospital" name="nombreHospital" required>
+        <label for="nombreHospital">Nombre del Hospital</label>
+      </div>
+      <div class="form-group">
+        <input type="text" id="direccion" [(ngModel)]="hospital.direccion" name="direccion" required>
+        <label for="direccion">Dirección</label>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <input type="text" id="estado" [(ngModel)]="hospital.estado" name="estado" required>
+          <label for="estado">Estado</label>
+        </div>
+        <div class="form-group">
+          <input type="text" id="municipio" [(ngModel)]="hospital.municipio" name="municipio" required>
+          <label for="municipio">Municipio</label>
+        </div>
+      </div>
+      <div class="form-group">
+        <input type="number" id="numSucursal" [(ngModel)]="hospital.numSucursal" name="numSucursal" min="0" required>
+        <label for="numSucursal">Número de Sucursal</label>
+      </div>
+      <div class="form-group">
+        <input type="tel" id="telefono" [(ngModel)]="hospital.telefono" name="telefono" maxlength="10" pattern="\d{10}" required>
+        <label for="telefono">Teléfono</label>
+        <div class="form-group">
+            <input type="email" id="correo" [(ngModel)]="hospital.correo" name="correo" required>
+            <label for="correo">Correo Electrónico</label>
+          </div>
+      </div>
+      <div class="form-group">
+        <input type="text" id="nomRepresHospital" [(ngModel)]="hospital.nomRepresHospital" name="nomRepresHospital" required>
+        <label for="nomRepresHospital">Nombre del Representante</label>
+      </div>
+      <div class="form-group">
+        <input type="text" id="rfcHospital" [(ngModel)]="hospital.rfcHospital" name="rfcHospital" maxlength="13" pattern="^[A-Z0-9]{13}$" required>
+        <label for="rfcHospital">RFC</label>
+      </div>
+      <input type="hidden" id="monto" [(ngModel)]="hospital.monto" name="monto" required>
+  
+      <!-- Único botón para registrar el hospital -->
+      <button type="submit">Registrar Hospital</button>
+    </form>
+  
+    <!-- Modal para mensajes -->
+    <div *ngIf="modalVisible" class="modal">
+      <div class="modal-content">
+        <p>{{mensaje}}</p>
+        <button (click)="cerrarModal()">Cerrar</button>
+      </div>
+    </div>
+  </div>
+  

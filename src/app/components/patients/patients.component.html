@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Médico</title>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Médicos</h1>
+        <div class="medicos-container" id="medicos">
+            <div class="medico">
+                <img src="img/juan_perez.jpg" alt="Dr. Juan Pérez">
+                <h3>Dr. Juan Pérez</h3>
+                <p>Hospital Central</p>
+                <p>Dolores Hidalgo</p>
+                <p>Cardiología</p>
+                <p>Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dr. Juan Pérez', 'Hospital Central', 'Dolores Hidalgo', 'Disponible', 'Cardiología')">Solicitar</button>
+            </div>
+            <div class="medico">
+                <img src="img/maria_garcia.jpg" alt="Dra. María García">
+                <h3>Dra. María García</h3>
+                <p>Clínica Santa María</p>
+                <p>Dolores Hidalgo</p>
+                <p>Pediatría</p>
+                <p>No Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dra. María García', 'Clínica Santa María', 'Dolores Hidalgo', 'No Disponible', 'Pediatría')">Solicitar</button>
+            </div>
+            <div class="medico">
+                <img src="img/carlos_lopez.jpg" alt="Dr. Carlos López">
+                <h3>Dr. Carlos López</h3>
+                <p>Hospital La Paz</p>
+                <p>Dolores Hidalgo</p>
+                <p>Neurología</p>
+                <p>Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dr. Carlos López', 'Hospital La Paz', 'Dolores Hidalgo', 'Disponible', 'Neurología')">Solicitar</button>
+            </div>
+            <div class="medico">
+                <img src="img/ana_martinez.jpg" alt="Dra. Ana Martínez">
+                <h3>Dra. Ana Martínez</h3>
+                <p>Hospital Clínico</p>
+                <p>Dolores Hidalgo</p>
+                <p>Dermatología</p>
+                <p>Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dra. Ana Martínez', 'Hospital Clínico', 'Dolores Hidalgo', 'Disponible', 'Dermatología')">Solicitar</button>
+            </div>
+            <div class="medico">
+                <img src="img/sandra_martinez.jpg" alt="Dra. Sandra Martínez">
+                <h3>Dra. Sandra Martínez</h3>
+                <p>Hospital Clínico</p>
+                <p>Dolores Hidalgo</p>
+                <p>Neurología</p>
+                <p>Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dra. Sandra Martínez', 'Hospital Clínico', 'Dolores Hidalgo', 'Disponible', 'Neurología')">Solicitar</button>
+            </div>
+            <div class="medico">
+                <img src="img/pedro_esparza.jpg" alt="Dr. Pedro Esparza">
+                <h3>Dr. Pedro Esparza</h3>
+                <p>Hospital Los Angeles</p>
+                <p>Dolores Hidalgo</p>
+                <p>Cardiología</p>
+                <p>Disponible</p>
+                <button class="seleccionar-btn" onclick="abrirModal('Dr. Pedro Esparza', 'Hospital Los Angeles', 'Dolores Hidalgo', 'Disponible', 'Cardiología')">Solicitar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal">
+        <div class="modal-content"> 
+            <h2 id="modal-titulo">Cita con </h2>
+            <label for="modal-fecha">Fecha:</label>
+            <input type="date" id="modal-fecha">
+            <label for="modal-hora">Hora:</label>
+            <input type="time" id="modal-hora">
+            <button onclick="generarCita()">Generar Cita</button>
+            <button onclick="cerrarModal()">Cerrar</button>
+        </div>
+    </div>

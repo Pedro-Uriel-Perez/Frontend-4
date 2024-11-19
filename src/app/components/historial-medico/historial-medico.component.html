@@ -1,0 +1,38 @@
+<div class="container">
+  <header>
+    <h1>Historial Médico de {{nombrePaciente}}</h1>
+    <button (click)="volverADashboard()" class="btn-volver">Regresar</button>
+  </header>
+
+  <div *ngIf="historialMedico.length === 0 && !errorMessage" class="no-registros">
+    <p>No se encontraron registros en el historial médico.</p>
+  </div>
+
+  <div *ngFor="let registro of historialMedico" class="registro-medico">
+    <h2>Consulta del {{registro.fechaFormateada}}</h2>
+    <p><strong>Hora:</strong> {{registro.horaFormateada}}</p>
+    <p><strong>Médico:</strong> {{registro.nombreMedico || 'No especificado'}}</p>
+    <p><strong>Especialidad:</strong> {{registro.especialidad || 'No especificada'}}</p>
+    
+    <div *ngIf="!registro.editing">
+      <h3>Diagnóstico</h3>
+      <p>{{registro.diagnostico || 'No especificado'}}</p>
+      <h3>Tratamiento</h3>
+      <p>{{registro.tratamiento || 'No especificado'}}</p>
+      <h3>Observaciones</h3>
+      <p>{{registro.observaciones || 'No especificadas'}}</p>
+      <button (click)="modificarRegistro(registro)">Modificar</button>
+    </div>
+
+    <div *ngIf="registro.editing">
+      <h3>Diagnóstico</h3>
+      <textarea [(ngModel)]="registro.diagnostico"></textarea>
+      <h3>Tratamiento</h3>
+      <textarea [(ngModel)]="registro.tratamiento"></textarea>
+      <h3>Observaciones</h3>
+      <textarea [(ngModel)]="registro.observaciones"></textarea>
+      <button (click)="guardarCambios(registro)">Guardar</button>
+      <button (click)="cancelarEdicion(registro)">Cancelar</button>
+    </div>
+  </div>
+</div>

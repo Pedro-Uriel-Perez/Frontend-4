@@ -1,0 +1,132 @@
+<div class="container">
+    <header>
+        <h1>Servicios Médicos</h1>
+        <p>Cuidando de su salud con excelencia y dedicación</p>
+    </header>
+    
+    <!-- Sección de búsqueda de medicamentos movida arriba -->
+    <section class="mt-4 mb-5">
+        <div class="card">
+            <div class="card-header bg-primary text-white text-center"> 
+                <h2 class="mb-0 fw-bold">Consulta tus Medicamentos</h2> 
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        [(ngModel)]="searchTerm"
+                        placeholder="Ingrese el nombre del medicamento que desea buscar">
+                    <button 
+                        class="btn btn-primary" 
+                        (click)="searchDrug()"
+                        [disabled]="loading">
+                        {{ loading ? 'Buscando...' : 'Buscar' }}
+                    </button>
+                    <button 
+                        class="btn btn-secondary" 
+                        (click)="clearSearch()"
+                        *ngIf="searchTerm">
+                        Limpiar
+                    </button>
+                </div>
+
+                <!-- Resultados -->
+                <div *ngIf="drugInfo" class="mt-4">
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h3 class="mb-0">{{drugInfo.brandName}}</h3>
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Nombre genérico:</strong> {{drugInfo.genericName}}</p>
+                            <p><strong>Fabricante:</strong> {{drugInfo.manufacturer}}</p>
+
+                            <div *ngIf="drugInfo.indications.length > 0" class="mt-3">
+                                <h4>Indicaciones:</h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item" *ngFor="let indication of drugInfo.indications">
+                                        {{indication}}
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div *ngIf="drugInfo.warnings.length > 0" class="mt-3">
+                                <h4>Advertencias:</h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item" *ngFor="let warning of drugInfo.warnings">
+                                        {{warning}}
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div *ngIf="drugInfo.dosage.length > 0" class="mt-3">
+                                <h4>Dosis:</h4>
+                                <ul class="list-group">
+                                    <li class="list-group-item" *ngFor="let dose of drugInfo.dosage">
+                                        {{dose}}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Error -->
+                <div *ngIf="error" class="alert alert-danger mt-3">
+                    {{error}}
+                </div>
+
+                <!-- Loading -->
+                <div *ngIf="loading" class="d-flex justify-content-center mt-3">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sección de servicios -->
+    <section>
+        <h2>Nuestros Servicios</h2>
+        <p>En Citas Médicas, nos dedicamos a proporcionar servicios de alta calidad para facilitar la gestión de su salud:</p>
+        
+        <div class="services-grid">
+            <div class="service-card">
+                <div class="service-icon">📅</div>
+                <h3>Programación de Citas</h3>
+                <p>Reserve citas con nuestros especialistas de manera rápida y sencilla.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🔄</div>
+                <h3>Modificación y Cancelación</h3>
+                <p>Flexibilidad para ajustar sus citas según su conveniencia.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">📊</div>
+                <h3>Acceso a Historial Médico</h3>
+                <p>Consulte su historial médico en cualquier momento y lugar.</p>
+            </div>
+            <div class="service-card">
+                <div class="service-icon">🔔</div>
+                <h3>Recordatorios y Notificaciones</h3>
+                <p>Manténgase al día con recordatorios automáticos de sus citas.</p>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <h2 class="text-center">¿Por qué elegirnos?</h2>
+        <ul>
+            <li>Equipo médico altamente calificado</li>
+            <li>Tecnología de vanguardia</li>
+            <li>Atención personalizada</li>
+            <li>Disponibilidad 24/7</li>
+            <li>Precios competitivos</li>
+        </ul>
+    </section>
+
+    <div class="text-center">
+        <a routerLink="/signup" class="cta-button">Registrese y programe su cita ahora</a>
+    </div>
+</div>

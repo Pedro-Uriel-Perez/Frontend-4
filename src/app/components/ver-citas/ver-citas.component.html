@@ -1,0 +1,48 @@
+<div class="ver-citas-container">
+  <div class="header-container">
+    <h2>Mis Citas Médicas</h2>
+    <div *ngIf="isConnectedWithFacebook" class="facebook-user-indicator">
+      <small>Conectado con Facebook</small>
+    </div>
+    <button (click)="volverACitas()" class="btn-volver">Regresar</button>
+  </div>
+    <ul *ngIf="citas.length > 0; else noCitas">
+    <li *ngFor="let cita of citas" [ngClass]="{'cita-finalizada': cita.estaFinalizada}">
+      <p><strong>Fecha:</strong> {{ cita.fechaFormateada }}</p>
+      <p><strong>Hora:</strong> {{ cita.horaFormateada }}</p>
+      <p><strong>Médico:</strong> {{ cita.nombreMedico }}</p>
+      <p><strong>Especialidad:</strong> {{ cita.especialidad }}</p>
+      <p><strong>Ubicación:</strong> {{ cita.hospital }}</p>
+      <p><strong>Descripción:</strong> {{ cita.descripcion }}</p>
+      <p><strong>Duración estimada:</strong> {{ cita.duracionEstimada }}</p>
+      <p><strong>Teléfono del médico:</strong> {{ cita.telefonoMedico }}</p>
+      <p><strong>Correo del médico:</strong> {{ cita.correoMedico }}</p>
+      <p><strong>Estado:</strong> {{ cita.estado }}</p>
+      <div class="cita-actions">
+        <button *ngIf="cita.puedeModificar" (click)="modificarCita(cita)" class="btn-modificar">Modificar Cita</button>
+        <button *ngIf="!cita.estaFinalizada" (click)="cancelarCita(cita)" class="btn-cancelar">Cancelar Cita</button>
+      </div>
+      <p *ngIf="cita.estaFinalizada" class="notificacion-finalizada">Su cita ha sido finalizada y conusulte su diagnostico en historial de citas</p>
+    </li>
+  </ul>
+  <ng-template #noCitas>
+    <p>No tienes citas programadas.</p>
+  </ng-template>
+</div>
+
+
+  <!-- Modal para modificar cita -->
+  <div class="modal" [class.show]="modalModificarAbierto">
+    <div class="modal-content">
+      <h2>Modificar Cita</h2>
+      <p><strong>Médico:</strong> {{ citaSeleccionada?.nombreMedico }}</p>
+      <label for="nuevaFecha">Nueva Fecha:</label>
+      <input type="date" id="nuevaFecha" [(ngModel)]="nuevaFecha">
+      <label for="nuevaHora">Nueva Hora:</label>
+      <input type="time" id="nuevaHora" [(ngModel)]="nuevaHora">
+      <div class="modal-actions">
+        <button (click)="confirmarModificacion()">Confirmar</button>
+        <button (click)="cerrarModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>

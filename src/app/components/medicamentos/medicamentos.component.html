@@ -1,0 +1,26 @@
+<div class="medicamentos-container">
+    <h1>Buscar Medicamentos</h1>
+    <input
+      type="text"
+      [(ngModel)]="nombreMedicamento"
+      placeholder="Ingresa el nombre del medicamento"
+    />
+    <button (click)="buscarMedicamentos()">Buscar</button>
+  
+    <div *ngIf="loading">Cargando...</div>
+    <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+  
+    <div *ngIf="medicamentos.length > 0">
+      <h2>Resultados de búsqueda:</h2>
+      <ul>
+        <li *ngFor="let medicamento of medicamentos">
+          {{ medicamento.nombre }} <!-- Ajusta según la estructura de la respuesta -->
+        </li>
+      </ul>
+    </div>
+    
+    <div *ngIf="medicamentos.length === 0 && !loading && !errorMessage">
+      <h2>No se encontraron medicamentos.</h2>
+    </div>
+  </div>
+  

@@ -1,0 +1,120 @@
+<main>
+  <section class="registro">
+      <h2>Registrarse</h2>
+      <form id="registrationForm" (ngSubmit)="saveNewDate()">
+          <fieldset>
+              <legend>Información Personal</legend>
+              <div>
+                  <label for="nombre">Nombre:</label>
+                  <input type="text" id="nombre" name="nombre" [(ngModel)]="date.nombre" required>
+              </div>
+              <div>
+                  <label for="apePaterno">Apellido Paterno:</label>
+                  <input type="text" id="apePaterno" name="apePaterno" [(ngModel)]="date.apePaterno" required>
+              </div>
+              <div>
+                  <label for="apeMaterno">Apellido Materno:</label>
+                  <input type="text" id="apeMaterno" name="apeMaterno" [(ngModel)]="date.apeMaterno" required>
+              </div>
+              <div class="inline-fields">
+                  <div>
+                      <label for="edad">Edad:</label>
+                      <input type="number" id="edad" name="edad" [(ngModel)]="date.edad" required>
+                  </div>
+                  <div>
+                      <label for="tipoSangre">Tipo de Sangre:</label>
+                      <select id="tipoSangre" name="tipoSangre" [(ngModel)]="date.tipoSangre" required>
+                          <option value="">Seleccione</option>
+                          <option value="A+">A+</option>
+                          <option value="A-">A-</option>
+                          <option value="B+">B+</option>
+                          <option value="B-">B-</option>
+                          <option value="AB+">AB+</option>
+                          <option value="AB-">AB-</option>
+                          <option value="O+">O+</option>
+                          <option value="O-">O-</option>
+                      </select>
+                  </div>
+                  <div>
+                      <label for="genero">Género:</label>
+                      <select id="genero" name="genero" [(ngModel)]="date.genero" required>
+                          <option value="">Seleccione</option>
+                          <option value="Masculino">Masculino</option>
+                          <option value="Femenino">Femenino</option>
+                          <option value="Otro">Otro</option>
+                      </select>
+                  </div>
+              </div>
+          </fieldset>
+          
+          <fieldset>
+              <legend>Información de Cuenta</legend>
+              <div>
+                  <label for="correo">Correo electrónico:</label>
+                  <input type="email" id="correo" name="correo" [(ngModel)]="date.correo" required>
+                  <span id="emailError" class="error" hidden>Por favor, ingrese un correo electrónico válido.</span>
+              </div>
+              <div>
+                  <label for="contrase">Contraseña:</label>
+                  <input type="password" id="contrase" name="contrase" [(ngModel)]="date.contrase" required>
+              </div>
+              <div>
+                  <label for="confirmarContrase">Confirmar Contraseña:</label>
+                  <input type="password" id="confirmarContrase" name="confirmarContrase" [(ngModel)]="confirmarContrase" required>
+              </div>
+          </fieldset>
+
+          <button type="submit">Registrar</button>
+      </form>
+      <div *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+      </div>
+  </section>
+</main>
+    
+    <footer class="footer">
+      <ul class="social-icon">
+        <li class="icon-elem">
+          <a routerLink="#" class="icon">
+            <img src="https://static.vecteezy.com/system/resources/previews/023/986/704/non_2x/youtube-logo-youtube-logo-transparent-youtube-icon-transparent-free-free-png.png" alt="YouTube">
+          </a>
+        </li>
+        <li class="icon-elem">
+          <a routerLink="#" class="icon">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Instagram_logo_2022.svg/1000px-Instagram_logo_2022.svg.png" alt="Instagram">
+          </a>
+        </li>
+        <li class="icon-elem">
+          <a routerLink="#" class="icon">
+            <img src="https://i.pinimg.com/originals/f3/53/5d/f3535dc3f95e71506f7c80755610176c.png" alt="WhatsApp">
+          </a>
+        </li>
+        <li class="icon-elem">
+          <a routerLink="#" class="icon">
+            <img src="https://static.vecteezy.com/system/resources/previews/018/930/698/original/facebook-logo-facebook-icon-transparent-free-png.png" alt="Facebook">
+          </a>
+        </li>
+        <li class="icon-elem">
+          <a routerLink="#" class="icon">
+            <img src="https://cdn.icon-icons.com/icons2/2642/PNG/512/google_mail_gmail_logo_icon_159346.png" alt="Email">
+          </a>
+        </li>
+      </ul>
+      <ul class="menu">
+        <li class="menu-elem">
+          <a href="/home" class="menu-icon">Inicio</a>
+        </li>
+
+        <li class="menu-elem">
+          <a routerLink="/contact" class="menu-icon">Contacto</a>
+        </li>
+        <li class="menu-elem">
+          <a routerLink="/services" class="menu-icon">Sobre Nosotros</a>
+        </li>
+      </ul>
+      <p>&copy; 2024 Citas Médicas. Todos los derechos reservados.</p>
+    </footer>
+    
+    <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+    <script src="main.js"></script>
