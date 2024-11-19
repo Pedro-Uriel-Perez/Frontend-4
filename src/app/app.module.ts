@@ -31,11 +31,8 @@ import { GeolocalizacionComponent } from './components/geolocalizacion/geolocali
 import { DatesService } from './services/dates.service';
 import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 
-import { SocialLoginModule, SocialAuthServiceConfig } from 'angularx-social-login';
-import {
-  GoogleLoginProvider,
-  FacebookLoginProvider
-} from 'angularx-social-login';
+import { SocialLoginModule, SocialAuthServiceConfig } from '@abacritt/angularx-social-login';
+import {GoogleLoginProvider,FacebookLoginProvider} from '@abacritt/angularx-social-login';
 
 import { DrugInfoComponent } from './components/drug-info/drug-info.component';
 import { MedicamentosComponent } from './components/medicamentos/medicamentos.component';

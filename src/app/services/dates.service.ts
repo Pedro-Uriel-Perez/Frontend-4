@@ -4,7 +4,7 @@
   import { catchError, map, tap } from 'rxjs/operators';
   import { Citas } from '../models/Citas';
   import { User } from '../models/User';   //cambien esto, checar si no afecta
-import { SocialAuthService } from 'angularx-social-login';
+import { SocialAuthService } from '@abacritt/angularx-social-login';
 import { initializeApp } from 'firebase/app';
 import { getDatabase, ref, push, onValue, Database, update, get } from 'firebase/database';
 import { getAnalytics } from "firebase/analytics";

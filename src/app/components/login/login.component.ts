@@ -1,8 +1,8 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DatesService } from '../../services/dates.service';
-import { SocialAuthService } from "angularx-social-login";
-import { FacebookLoginProvider, GoogleLoginProvider } from "angularx-social-login";
+import { SocialAuthService } from "@abacritt/angularx-social-login";
+import { FacebookLoginProvider, GoogleLoginProvider } from "@abacritt/angularx-social-login";
 
 
 declare var google: any;
@@ -52,7 +52,7 @@ export class LoginComponent implements OnInit {
             console.error('Error en el login de Facebook:', error);
             this.mostrarMensaje('Error al procesar el inicio de sesión con Facebook.');
           }
-        );
+        );  
       }
     ).catch(
       error => {
