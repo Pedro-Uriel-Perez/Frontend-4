@@ -390,6 +390,8 @@ private stopSpotifyAndNavigate() {
     window.open(url, '_blank');
   }
 
+
+  
   
 
   ///hata aqui termina geolocalizacion

@@ -86,13 +86,12 @@
           <p>Disponibilidad: {{ medico.disponibilidad }}</p>
         </div>
         
-        <div class="medico-actions">
-          <button *ngIf="medico.latitud && medico.longitud" 
-                  (click)="abrirMapaEnNuevaPestana(medico.latitud, medico.longitud)"
-                  class="ubicacion-btn">
-            <i class="fas fa-map-marker-alt"></i>
-            Ver Ubicación
-          </button>
+        <button *ngIf="medico.latitud && medico.longitud" 
+        (click)="abrirMapaEnNuevaPestana(medico.latitud, medico.longitud, medico.nombre)"
+        class="ubicacion-btn">
+  <i class="fas fa-map-marker-alt"></i>
+  Ver Ubicación
+</button>
 
           <button class="seleccionar-btn" 
                   (click)="abrirModal(medico)" 
@@ -143,7 +142,7 @@
       (onMinimize)="minimizarChat()"
       (onMensajeEnviado)="onMensajeEnviado($event)">
     </app-chat>
-  </div>
+  
 
   <!-- Estilos específicos -->
   <style>
