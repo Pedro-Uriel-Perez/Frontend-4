@@ -31,7 +31,7 @@ interface SpotifyTokenResponse {
     providedIn: 'root'
   })
   export class DatesService {
-    API_URI = 'http://localhost:3000/api'; // para frontend usando api backend
+    API_URI = 'https://backend-4-seven.vercel.app/api'; // para frontend usando api backend
     //API_URI = 'https://citasmedicas-ten.vercel.app/api'; // Cambiado para usar backend
 
     private POSITIONSTACK_API = 'https://api.positionstack.com/v1';
@@ -47,7 +47,7 @@ interface SpotifyTokenResponse {
    // nuevas variables para Spotify
    private readonly SPOTIFY_CLIENT_ID = '2aaab0af49ac40b5a78ae868e50bb7d0';
    private readonly SPOTIFY_CLIENT_SECRET = '9bccdb16cdde4f6d8814ce74585f7e14';
-   private readonly SPOTIFY_REDIRECT_URI = 'http://localhost:4200/spotify-callback';
+   private readonly SPOTIFY_REDIRECT_URI = 'http://citasmedicas4.netlify.app/spotify-callback';
    private readonly SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
    
@@ -355,7 +355,7 @@ getMensajesNoLeidos(medicoId: string): Observable<number> {
     const body = new URLSearchParams();
     body.set('grant_type', 'authorization_code');
     body.set('code', code);
-    body.set('redirect_uri', 'http://localhost:4200/spotify-callback');
+    body.set('redirect_uri', 'http://citasmedicas4.netlify.app/spotify-callback');
     body.set('client_id', this.SPOTIFY_CLIENT_ID);
     body.set('client_secret', this.SPOTIFY_CLIENT_SECRET);
 
@@ -437,7 +437,7 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
     const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: 'http://localhost:4200/spotify-callback',
+      redirect_uri: 'http://citasmedicas4.netlify.app/spotify-callback',
       scope: scopes,
       show_dialog: 'true'
     });
