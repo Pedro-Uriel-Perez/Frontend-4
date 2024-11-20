@@ -101,6 +101,9 @@ const routes: Routes = [
 
     { path: 'geolocalizacion', component: GeolocalizacionComponent },
 
+    { path: '**', redirectTo: '' },   // Añade esta línea
+
+
     { path: 'auth-callback', component: AuthCallbackComponent },
     
 
