@@ -297,10 +297,7 @@ private stopSpotifyAndNavigate() {
   //para la geolocalizacion
   
 
-  abrirMapaEnNuevaPestana(latitud: number, longitud: number) {
-    const url = `/geolocalizacion?lat=${latitud}&lng=${longitud}`;
-    window.open(url, '_blank');
-  }
+  
   
   toggleUbicacion(medico: any) {
     medico.ubicacionVisible = !medico.ubicacionVisible;
@@ -369,6 +366,28 @@ private stopSpotifyAndNavigate() {
     } else {
       alert('Mapa no está inicializado o la ubicación no está disponible.');
     }
+  }
+
+
+//ES EL QUE TENIA
+  //abrirMapaEnNuevaPestana(latitud: number, longitud: number) {
+    //const url = `/geolocalizacion?lat=${latitud}&lng=${longitud}`;
+    //window.open(url, '_blank');
+  //}
+
+  abrirMapaEnNuevaPestana(latitud: number, longitud: number, nombre: string) {
+    // Usar URLSearchParams para manejar correctamente los parámetros
+    const params = new URLSearchParams({
+      lat: latitud.toString(),
+      lng: longitud.toString(),
+      nombre: nombre || 'Médico' // Valor por defecto si no hay nombre
+    });
+  
+    // Obtener la URL base y construir la URL completa
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}/geolocalizacion?${params.toString()}`;
+    
+    window.open(url, '_blank');
   }
 
   
