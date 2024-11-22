@@ -75,6 +75,7 @@
     </div>
 
     <!-- Lista de Médicos -->
+    <div *ngIf="loading" class="loading">Cargando...</div>
     <div class="medicos-container">
       <div class="medico" *ngFor="let medico of medicosFiltrados">
         <div class="medico-info">
@@ -86,13 +87,9 @@
           <p>Disponibilidad: {{ medico.disponibilidad }}</p>
         </div>
         
-        <button *ngIf="medico.latitud && medico.longitud" 
-        (click)="abrirMapaEnNuevaPestana(medico.latitud, medico.longitud, medico.nombre)"
-        class="ubicacion-btn">
-  <i class="fas fa-map-marker-alt"></i>
-  Ver Ubicación
-</button>
+        
 
+          
           <button class="seleccionar-btn" 
                   (click)="abrirModal(medico)" 
                   [disabled]="medico.disponibilidad === 'No Disponible'">
@@ -100,12 +97,31 @@
             {{ medico.disponibilidad === 'Disponible' ? 'Solicitar Cita' : 'No Disponible' }}
           </button>
 
+          <!-- Botón de Ubicación -->
+    <button *ngIf="medico.latitud && medico.longitud"
+    (click)="mostrarUbicacionMedico(medico)"
+    class="ubicacion-btn">
+<i class="fas fa-map-marker-alt"></i>
+Ver Ubicación
+</button>
+
+
           <button class="chat-btn" (click)="abrirChat(medico, $event)">
             <i class="fas fa-comments"></i>
             Chat con médico
           </button>
         </div>
       </div>
+
+      <!-- Al final del template, fuera del loop de médicos -->
+<app-geolocalizacion
+*ngIf="mostrarMapa"
+[latitud]="medicoSeleccionado?.latitud"
+[longitud]="medicoSeleccionado?.longitud"
+[nombreMedico]="medicoSeleccionado?.nombre"
+[visible]="mostrarMapa"
+(cerrarModal)="cerrarMapa()">
+</app-geolocalizacion>
     </div>
 
     <!-- Modal de Cita -->

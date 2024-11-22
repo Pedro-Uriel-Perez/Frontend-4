@@ -8,6 +8,7 @@ import { IMensaje } from 'src/app/models/chat.model';
 
 
 
+
 @Component({
   selector: 'app-citas',
   templateUrl: './citas.component.html',
@@ -26,6 +27,7 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
   fechaSeleccionada: string = '';
   horaSeleccionada: string = '';
   medicoSeleccionado: any = {};
+
   idPaciente: string = '';
   nombrePaciente: string = '';
   errorMessage: string = '';
@@ -37,8 +39,12 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
   userName: string | null = null;
 
   
+  mostrarMapa = false;
+
+  
 
 
+  
   
 
   map: L.Map | undefined;
@@ -140,17 +146,42 @@ mensajes: any[] = [];
 nuevoMensaje: string = '';
 
 
-  constructor(
-    private datesService: DatesService,
-    private route: ActivatedRoute,
-    private router: Router,
-    private ngZone: NgZone
+constructor(
+  private datesService: DatesService,
+  private route: ActivatedRoute,
+  private router: Router,
+  private ngZone: NgZone
+) {
+  this.spotifyConnected = !!localStorage.getItem('spotify_token');
+  this.idPaciente = localStorage.getItem('pacienteId') || '';
+  // Cargar datos inmediatamente si hay un usuario autenticado
+  const user = this.datesService.getCurrentUser();
+  if (user) {
+    this.cargarDatosIniciales(user.id, user.name);
+  }
+}
 
-  ) {
-    this.spotifyConnected = !!localStorage.getItem('spotify_token');
-    this.idPaciente = localStorage.getItem('pacienteId') || '';
-   }
+private cargarDatosIniciales(userId: string, userName: string) {
+  this.idPaciente = userId;
+  this.nombrePaciente = userName;
+  this.welcomeMessage = `Bienvenido, ${this.nombrePaciente}!`;
+  this.medicosFiltrados = [...this.medicos];
+  this.inicializarFiltros();
+  this.cargarHistorialCitas();
+  this.cargarCitas();
+  this.obtenerCoordenadasMedicos();
+}
 
+
+   mostrarUbicacionMedico(medico: any) {
+    this.medicoSeleccionado = medico;
+    this.mostrarMapa = true;
+  }
+
+  cerrarMapa() {
+    this.mostrarMapa = false;
+    this.medicoSeleccionado = null;
+  }
 
 
    abrirChat(medico: any, event: MouseEvent) {
@@ -297,7 +328,10 @@ private stopSpotifyAndNavigate() {
   //para la geolocalizacion
   
 
-  
+  abrirMapaEnNuevaPestana(latitud: number, longitud: number) {
+    const url = `/geolocalizacion?lat=${latitud}&lng=${longitud}`;
+    window.open(url, '_blank');
+  }
   
   toggleUbicacion(medico: any) {
     medico.ubicacionVisible = !medico.ubicacionVisible;
@@ -368,30 +402,6 @@ private stopSpotifyAndNavigate() {
     }
   }
 
-
-//ES EL QUE TENIA
-  //abrirMapaEnNuevaPestana(latitud: number, longitud: number) {
-    //const url = `/geolocalizacion?lat=${latitud}&lng=${longitud}`;
-    //window.open(url, '_blank');
-  //}
-
-  abrirMapaEnNuevaPestana(latitud: number, longitud: number, nombre: string) {
-    // Usar URLSearchParams para manejar correctamente los parámetros
-    const params = new URLSearchParams({
-      lat: latitud.toString(),
-      lng: longitud.toString(),
-      nombre: nombre || 'Médico' // Valor por defecto si no hay nombre
-    });
-  
-    // Obtener la URL base y construir la URL completa
-    const baseUrl = window.location.origin;
-    const url = `${baseUrl}/geolocalizacion?${params.toString()}`;
-    
-    window.open(url, '_blank');
-  }
-
-
-  
   
 
   ///hata aqui termina geolocalizacion
@@ -400,6 +410,12 @@ private stopSpotifyAndNavigate() {
   
 
   ngOnInit(): void {
+
+    const user = this.datesService.getCurrentUser();
+    if (user) {
+      this.cargarDatosIniciales(user.id, user.name);
+    }
+
     // Inicializar las suscripciones de logout
     this.datesService.logout$
       .pipe(takeUntil(this.destroy$))
@@ -479,8 +495,7 @@ private stopSpotifyAndNavigate() {
   
   private procederConInicializacion(): void {
     if (this.idPaciente && this.nombrePaciente) {
-      
-      // Verificar nuevamente la URL si es usuario de Facebook
+      // Verificar Facebook URL
       if (this.isConnectedWithFacebook) {
         const currentUrl = this.router.url;
         const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
@@ -489,21 +504,34 @@ private stopSpotifyAndNavigate() {
           this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
             replaceUrl: true
           });
-          return; // La inicialización se realizará después de la redirección
+          return;
         }
       }
-  
+   
+      this.loading = true; // Añadir loading
       this.welcomeMessage = `Bienvenido, ${this.nombrePaciente}!`;
+   
+      // Cargar datos base
       this.medicosFiltrados = [...this.medicos];
       this.inicializarFiltros();
-      this.cargarHistorialCitas();
-      this.cargarCitas();
-      this.obtenerCoordenadasMedicos();
+   
+      // Cargar datos asíncronos
+      setTimeout(() => {
+        Promise.all([
+          this.cargarHistorialCitas(),
+          this.cargarCitas(),
+          this.obtenerCoordenadasMedicos()
+        ]).finally(() => {
+          this.loading = false;
+        });
+      }, 100);
+   
     } else {
       console.error('No se encontró ID o nombre de paciente');
       this.router.navigate(['/login']);
     }
-  }
+   }
+   loading: boolean = true;
   
 
   irAVerCitas(): void {
