@@ -26,7 +26,15 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
   modalAbierto = false;
   fechaSeleccionada: string = '';
   horaSeleccionada: string = '';
-  medicoSeleccionado: any = {};
+  
+  //medicoSeleccionado: any = {};
+  
+  medicoSeleccionado: any = {
+    latitud: null,
+    longitud: null,
+    nombre: '',
+    imagen: ''
+  };
 
   idPaciente: string = '';
   nombrePaciente: string = '';
@@ -40,6 +48,9 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   
   mostrarMapa = false;
+
+
+  
 
   
 
@@ -173,9 +184,14 @@ private cargarDatosIniciales(userId: string, userName: string) {
 }
 
 
-   mostrarUbicacionMedico(medico: any) {
-    this.medicoSeleccionado = medico;
-    this.mostrarMapa = true;
+
+  mostrarUbicacionMedico(medico: any) {
+    if (medico && medico.latitud && medico.longitud) {
+      this.medicoSeleccionado = { ...medico };
+      this.mostrarMapa = true;
+    } else {
+      console.error('El médico no tiene coordenadas definidas');
+    }
   }
 
   cerrarMapa() {

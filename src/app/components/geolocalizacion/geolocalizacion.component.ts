@@ -38,14 +38,17 @@ export class GeolocalizacionComponent implements OnInit, OnChanges {
    }
  }
 
- ngOnChanges(changes: SimpleChanges) {
-   if (changes['visible']?.currentValue) {
-     setTimeout(() => this.initMap(), 100);
-   }
- }
+ 
 
+ ngOnChanges(changes: SimpleChanges) {
+  if (changes['visible']?.currentValue && this.latitud && this.longitud) {
+    setTimeout(() => {
+      this.initMap();
+    }, 100);
+  }
+}
  initMap() {
-   if (!this.map) {
+  if (!this.map && this.latitud && this.longitud) {
      const mapContainer = document.getElementById('map');
      if (mapContainer) {
        mapContainer.style.height = '800px';
