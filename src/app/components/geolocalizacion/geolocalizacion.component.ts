@@ -2,7 +2,21 @@ import { Component, Input, OnInit, Output, EventEmitter, SimpleChanges, OnChange
 import 'leaflet';
 import 'leaflet-routing-machine';
 
-
+interface RoutingControlOptions {
+  waypoints: L.LatLng[];
+  routeWhileDragging: boolean;
+  lineOptions: {
+    styles: Array<{
+      color: string;
+      weight: number;
+    }>;
+    extendToWaypoints: boolean;
+    missingRouteTolerance: number;
+  };
+  showAlternatives: boolean;
+  router: any;
+  createMarker: (i: number, waypoint: { latLng: L.LatLng }) => L.Marker;
+}
 
 declare let L: any;
 
@@ -34,7 +48,7 @@ declare let L: any;
     }
     .mapa-container {
       width: 90%;
-      max-width: 800px;
+      max-width: 1200px;
       background: white;
       border-radius: 8px;
       overflow: hidden;
@@ -74,63 +88,89 @@ export class GeolocalizacionComponent implements OnChanges {
 
   initMap() {
     if (!this.map) {
+      const mapContainer = document.getElementById('map');
+      if (mapContainer) {
+        mapContainer.style.height = '800px';
+      }
+
       this.map = L.map('map').setView([this.latitud, this.longitud], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(this.map);
 
+      const doctorIcon = L.icon({
+        iconUrl: 'assets/custom-marker-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+
+      const userIcon = L.icon({
+        iconUrl: 'assets/custom-marker-icon.png',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+
       // Marcador del médico
-      const doctorMarker = L.marker([this.latitud, this.longitud])
+      L.marker([this.latitud, this.longitud], { icon: doctorIcon })
         .addTo(this.map)
-        .bindPopup(this.nombreMedico)
+        .bindPopup(`<b>${this.nombreMedico}</b>`)
         .openPopup();
 
       // Obtener ubicación del usuario
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const userLat = position.coords.latitude;
-          const userLng = position.coords.longitude;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
 
-          // Marcador del usuario
-          const userMarker = L.marker([userLat, userLng])
-            .addTo(this.map)
-            .bindPopup('Tu ubicación')
-            .openPopup();
+            // Añadir ruta
+            if (!this.routingControl) {
+              this.routingControl = L.Routing.control({
+                waypoints: [
+                  L.latLng(userLat, userLng),
+                  L.latLng(this.latitud, this.longitud)
+                ],
+                routeWhileDragging: false,
+                showAlternatives: false,
+                fitSelectedRoutes: true,
+                lineOptions: {
+                  styles: [{ color: '#6FA1EC', weight: 4 }],
+                  extendToWaypoints: true,
+                  missingRouteTolerance: 0
+                },
+                router: L.Routing.osrmv1({
+                  serviceUrl: 'https://router.project-osrm.org/route/v1',
+                  language: 'es'
+                }),
+                createMarker: function(i: number, waypoint: { latLng: L.LatLng }) {
+                  return L.marker(waypoint.latLng, {
+                    icon: i === 0 ? userIcon : doctorIcon
+                  });
+                }
+              } as RoutingControlOptions).addTo(this.map);
+            }
 
-          // Añadir ruta
-          if (!this.routingControl) {
-            this.routingControl = L.Routing.control({
-              waypoints: [
-                L.latLng(userLat, userLng),
-                L.latLng(this.latitud, this.longitud)
-              ],
-              routeWhileDragging: false,
-              showAlternatives: false,
-              fitSelectedRoutes: true,
-              lineOptions: {
-                styles: [
-                  { color: '#6FA1EC', weight: 4 }
-                ]
-              },
-              router: L.Routing.osrmv1({
-                serviceUrl: 'https://router.project-osrm.org/route/v1',
-                language: 'es'
-              })
-            }).addTo(this.map);
+            // Ajustar vista para mostrar toda la ruta
+            this.map.fitBounds([
+              [userLat, userLng],
+              [this.latitud, this.longitud]
+            ], { padding: [50, 50] });
+          },
+          (error) => {
+            console.error('Error getting location:', error);
+            alert('No se pudo obtener tu ubicación. Por favor, permite el acceso a tu ubicación en el navegador.');
           }
+        );
+      }
+    }
+  }
 
-          // Ajustar vista para mostrar toda la ruta
-          this.map.fitBounds([
-            [userLat, userLng],
-            [this.latitud, this.longitud]
-          ], { padding: [50, 50] });
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-          alert('No se pudo obtener tu ubicación. Por favor, permite el acceso a tu ubicación en el navegador.');
-        }
-      );
+  onOverlayClick(event: MouseEvent) {
+    if ((event.target as HTMLElement).className === 'mapa-overlay') {
+      this.cerrar();
     }
   }
 
