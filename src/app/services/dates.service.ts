@@ -423,36 +423,31 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
 }
 
   // Método para inicializar la autenticación de Spotify
-    
+
   initializeSpotifyAuth(): void {
-    const scopes = [
-      'streaming',
-      'user-read-email',
-      'user-read-private',
-      'user-read-playback-state',
-      'user-modify-playback-state',
-      'user-read-currently-playing',
-      'app-remote-control'
-    ].join(' ');
-  
-    // Asegurarse de que la URL esté correctamente codificada
-    const redirectUri = encodeURIComponent('https://citasmedicas4.netlify.app/spotify-callback');
-    
-    const params = new URLSearchParams({
-      client_id: this.SPOTIFY_CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: 'https://citasmedicas4.netlify.app/spotify-callback', // URL sin codificar
-      scope: scopes,
-      show_dialog: 'true'
-    });
-  
-    const authUrl = 'https://accounts.spotify.com/authorize?' + params.toString();
-    
-    // Guardar la URL actual para redirigir después del login
-    localStorage.setItem('spotify_redirect_after_login', window.location.href);
-    
-    window.location.href = authUrl;
-  }
+  const scopes = [
+    'streaming',
+    'user-read-email',
+    'user-read-private',
+    'user-read-playback-state',
+    'user-modify-playback-state',
+    'user-read-currently-playing',
+    'app-remote-control'
+  ].join(' ');
+
+  // Guarda la URL actual para redirigir después
+  localStorage.setItem('originalUrl', window.location.href);
+
+  const params = new URLSearchParams({
+    client_id: this.SPOTIFY_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: this.SPOTIFY_REDIRECT_URI,
+    scope: scopes,
+    show_dialog: 'true'
+  });
+
+  window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+}
 
   // Método para manejar errores
   private handleError(error: any): Observable<never> {
