@@ -425,29 +425,30 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
   // Método para inicializar la autenticación de Spotify
 
   initializeSpotifyAuth(): void {
-  const scopes = [
-    'streaming',
-    'user-read-email',
-    'user-read-private',
-    'user-read-playback-state',
-    'user-modify-playback-state',
-    'user-read-currently-playing',
-    'app-remote-control'
-  ].join(' ');
-
-  // Guarda la URL actual para redirigir después
-  localStorage.setItem('originalUrl', window.location.href);
-
-  const params = new URLSearchParams({
-    client_id: this.SPOTIFY_CLIENT_ID,
-    response_type: 'code',
-    redirect_uri: this.SPOTIFY_REDIRECT_URI,
-    scope: scopes,
-    show_dialog: 'true'
-  });
-
-  window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
-}
+    // Guardar la URL actual completa antes de redirigir
+    const currentPath = window.location.pathname + window.location.search;
+    localStorage.setItem('returnPath', currentPath);
+  
+    const scopes = [
+      'streaming',
+      'user-read-email',
+      'user-read-private',
+      'user-read-playback-state',
+      'user-modify-playback-state',
+      'user-read-currently-playing',
+      'app-remote-control'
+    ].join(' ');
+  
+    const params = new URLSearchParams({
+      client_id: this.SPOTIFY_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri: this.SPOTIFY_REDIRECT_URI,
+      scope: scopes,
+      show_dialog: 'true'
+    });
+  
+    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+  }
 
   // Método para manejar errores
   private handleError(error: any): Observable<never> {

@@ -61,41 +61,35 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Capturar el código de autorización de la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         const code = params['code'];
         const error = params['error'];
-
+  
         if (error) {
           this.handleError('Error en la autorización de Spotify: ' + error);
           return;
         }
-
-        if (!code) {
-          this.handleError('No se recibió código de autorización');
-          return;
-        }
-
-        // Procesar el código de autorización
-        this.datesService.getSpotifyToken(code)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe({
+  
+        if (code) {
+          this.loading = true;
+          this.datesService.getSpotifyToken(code).subscribe({
             next: (response) => {
-              console.log('Token de Spotify obtenido exitosamente');
               localStorage.setItem('spotify_token', response.access_token);
               if (response.refresh_token) {
                 localStorage.setItem('spotify_refresh_token', response.refresh_token);
               }
-              // Redirigir después de un breve retraso
-              setTimeout(() => this.navigateBack(), 1000);
+              this.navigateBack();
             },
             error: (err) => {
               console.error('Error al obtener token de Spotify:', err);
-              this.handleError('Error al conectar con Spotify: ' + err.message);
+              this.handleError('Error al conectar con Spotify');
             }
           });
+        } else {
+          this.handleError('No se recibió código de autorización');
+        }
       });
   }
 
@@ -107,16 +101,23 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   }
 
   private navigateBack() {
+    const returnPath = localStorage.getItem('returnPath');
     const currentUserId = localStorage.getItem('userId');
     const currentUserName = localStorage.getItem('userName');
-    
-    // Construir la URL de redirección
-    const redirectPath = currentUserId && currentUserName 
-      ? `/citas/${currentUserId}/${encodeURIComponent(currentUserName)}`
-      : '/citas';
-
-    // Usar window.location para una redirección completa
-    window.location.href = `https://citasmedicas4.netlify.app${redirectPath}`;
+  
+    setTimeout(() => {
+      if (returnPath) {
+        // Navegar a la ruta guardada
+        window.location.href = `https://citasmedicas4.netlify.app${returnPath}`;
+        localStorage.removeItem('returnPath');
+      } else if (currentUserId && currentUserName) {
+        // Si no hay ruta guardada pero tenemos info del usuario
+        window.location.href = `https://citasmedicas4.netlify.app/citas/${currentUserId}/${encodeURIComponent(currentUserName)}`;
+      } else {
+        // Fallback a la ruta principal
+        window.location.href = 'https://citasmedicas4.netlify.app/citas';
+      }
+    }, 1000);
   }
 
   ngOnDestroy() {
