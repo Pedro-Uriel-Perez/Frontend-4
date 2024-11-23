@@ -103,25 +103,23 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   
 
   private navigateBack() {
-    const originalUrl = localStorage.getItem('originalUrl');
+    const returnPath = localStorage.getItem('returnPath');
     const currentUserId = localStorage.getItem('userId');
     const currentUserName = localStorage.getItem('userName');
-
-    if (originalUrl) {
-      window.location.href = originalUrl;
-      localStorage.removeItem('originalUrl'); // Limpiar la URL guardada
-    } else if (currentUserId && currentUserName) {
-      // Si no hay URL original pero tenemos información del usuario
-      this.router.navigate(['/citas'], {
-        queryParams: {
-          userId: currentUserId,
-          userName: currentUserName
-        }
-      });
-    } else {
-      // Si no hay información, volver a citas sin parámetros
-      this.router.navigate(['/citas']);
-    }
+  
+    setTimeout(() => {
+      if (returnPath) {
+        // Navegar a la ruta guardada
+        window.location.href = `https://citasmedicas4.netlify.app${returnPath}`;
+        localStorage.removeItem('returnPath');
+      } else if (currentUserId && currentUserName) {
+        // Si no hay ruta guardada pero tenemos info del usuario
+        window.location.href = `https://citasmedicas4.netlify.app/citas/${currentUserId}/${encodeURIComponent(currentUserName)}`;
+      } else {
+        // Fallback a la ruta principal
+        window.location.href = 'https://citasmedicas4.netlify.app/citas';
+      }
+    }, 1000);
   }
 
 
