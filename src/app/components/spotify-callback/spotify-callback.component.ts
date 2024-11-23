@@ -1,5 +1,3 @@
-// spotify-callback.component.ts
-
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatesService } from '../../services/dates.service';
@@ -63,6 +61,7 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Capturar el código de autorización de la URL
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
@@ -74,55 +73,50 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
           return;
         }
 
-        if (code) {
-          this.handleSpotifyCode(code);
-        } else {
+        if (!code) {
           this.handleError('No se recibió código de autorización');
+          return;
         }
-      });
-  }
 
-  private handleSpotifyCode(code: string) {
-    this.datesService.getSpotifyToken(code)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response) => {
-          console.log('Token de Spotify obtenido exitosamente');
-          this.navigateBack();
-        },
-        error: (err) => {
-          console.error('Error al obtener token de Spotify:', err);
-          this.handleError('Error al conectar con Spotify');
-        }
+        // Procesar el código de autorización
+        this.datesService.getSpotifyToken(code)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: (response) => {
+              console.log('Token de Spotify obtenido exitosamente');
+              localStorage.setItem('spotify_token', response.access_token);
+              if (response.refresh_token) {
+                localStorage.setItem('spotify_refresh_token', response.refresh_token);
+              }
+              // Redirigir después de un breve retraso
+              setTimeout(() => this.navigateBack(), 1000);
+            },
+            error: (err) => {
+              console.error('Error al obtener token de Spotify:', err);
+              this.handleError('Error al conectar con Spotify: ' + err.message);
+            }
+          });
       });
   }
 
   private handleError(errorMessage: string) {
     this.loading = false;
     this.error = errorMessage;
+    console.error(errorMessage);
     setTimeout(() => this.navigateBack(), 2000);
   }
 
   private navigateBack() {
-    const originalUrl = localStorage.getItem('originalUrl');
     const currentUserId = localStorage.getItem('userId');
     const currentUserName = localStorage.getItem('userName');
+    
+    // Construir la URL de redirección
+    const redirectPath = currentUserId && currentUserName 
+      ? `/citas/${currentUserId}/${encodeURIComponent(currentUserName)}`
+      : '/citas';
 
-    if (originalUrl) {
-      window.location.href = originalUrl;
-      localStorage.removeItem('originalUrl'); // Limpiar la URL guardada
-    } else if (currentUserId && currentUserName) {
-      // Si no hay URL original pero tenemos información del usuario
-      this.router.navigate(['/citas'], {
-        queryParams: {
-          userId: currentUserId,
-          userName: currentUserName
-        }
-      });
-    } else {
-      // Si no hay información, volver a citas sin parámetros
-      this.router.navigate(['/citas']);
-    }
+    // Usar window.location para una redirección completa
+    window.location.href = `https://citasmedicas4.netlify.app${redirectPath}`;
   }
 
   ngOnDestroy() {

@@ -423,6 +423,7 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
 }
 
   // Método para inicializar la autenticación de Spotify
+    
   initializeSpotifyAuth(): void {
     const scopes = [
       'streaming',
@@ -433,17 +434,24 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'user-read-currently-playing',
       'app-remote-control'
     ].join(' ');
-
+  
+    // Asegurarse de que la URL esté correctamente codificada
+    const redirectUri = encodeURIComponent('https://citasmedicas4.netlify.app/spotify-callback');
+    
     const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: 'https://citasmedicas4.netlify.app/spotify-callback',
+      redirect_uri: 'https://citasmedicas4.netlify.app/spotify-callback', // URL sin codificar
       scope: scopes,
       show_dialog: 'true'
     });
-
-    const url = 'https://accounts.spotify.com/authorize?' + params.toString();
-    window.location.href = url;
+  
+    const authUrl = 'https://accounts.spotify.com/authorize?' + params.toString();
+    
+    // Guardar la URL actual para redirigir después del login
+    localStorage.setItem('spotify_redirect_after_login', window.location.href);
+    
+    window.location.href = authUrl;
   }
 
   // Método para manejar errores
@@ -534,6 +542,9 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       })
     );
   }
+
+
+  //aqui termina spoify
 
     guardarHospital(hospital: any): Observable<any> {
       return this.http.post(`${this.API_URI}/hospitales`, hospital);
