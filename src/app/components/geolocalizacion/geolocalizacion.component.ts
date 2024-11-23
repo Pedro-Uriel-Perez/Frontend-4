@@ -48,7 +48,7 @@ declare let L: any;
     }
     .mapa-container {
       width: 90%;
-      max-width: 1200px;
+      max-width: 1000px;
       background: white;
       border-radius: 8px;
       overflow: hidden;
