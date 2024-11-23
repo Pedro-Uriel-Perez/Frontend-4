@@ -29,7 +29,7 @@ declare let L: any;
           <h3>Ubicación del Médico: {{nombreMedico}}</h3>
           <button class="cerrar-btn" (click)="cerrar()">×</button>
         </div>
-        <div id="map" style="height: 500px;"></div>
+        <div id="map"></div>
       </div>
     </div>
   `,
@@ -47,11 +47,15 @@ declare let L: any;
       z-index: 1000;
     }
     .mapa-container {
-      width: 90%;
-      max-width: 1000px;
+      width: 80%;          /* Ajustado */
+      height: 80vh;        /* Ajustado */
+      max-width: 1000px;   /* Ajustado */
       background: white;
       border-radius: 8px;
       overflow: hidden;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
     .mapa-header {
       padding: 15px;
@@ -59,12 +63,18 @@ declare let L: any;
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid #eee;
+      background: white;
     }
     .cerrar-btn {
       border: none;
       background: none;
       font-size: 24px;
       cursor: pointer;
+    }
+    #map {
+      width: 100%;
+      height: calc(100% - 56px); /* Altura total menos el header */
+      flex: 1;
     }
   `]
 })
@@ -88,11 +98,6 @@ export class GeolocalizacionComponent implements OnChanges {
 
   initMap() {
     if (!this.map) {
-      const mapContainer = document.getElementById('map');
-      if (mapContainer) {
-        mapContainer.style.height = '800px';
-      }
-
       this.map = L.map('map').setView([this.latitud, this.longitud], 13);
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
