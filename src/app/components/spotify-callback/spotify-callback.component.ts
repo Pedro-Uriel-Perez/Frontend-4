@@ -6,65 +6,65 @@ import { take } from 'rxjs/operators';
 @Component({
   selector: 'app-spotify-callback',
   template: `
-    <div class="callback-container">
+    <div class="center">
       <p>Procesando autenticación de Spotify...</p>
     </div>
   `,
   styles: [`
-    .callback-container {
+    .center {
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
-    .loading {
-      text-align: center;
-    }
-    .spinner {
-      width: 40px;
-      height: 40px;
-      margin: 20px auto;
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #3498db;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
   `]
 })
-
 export class SpotifyCallbackComponent implements OnInit {
   constructor(
-    private route: ActivatedRoute,
     private router: Router,
+    private route: ActivatedRoute,
     private datesService: DatesService
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.subscribe(params => {
-      const token = params['token'];
-      if (token) {
-        this.datesService.handleSpotifyCallback(token).subscribe({
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const state = params.get('state');
+
+    if (code && state) {
+      try {
+        const stateData = JSON.parse(state);
+        
+        this.datesService.getSpotifyToken(code).subscribe({
           next: (response) => {
-            if (response.valid) {
-              const returnPath = localStorage.getItem('spotify_return_path') || '/citas';
-              localStorage.removeItem('spotify_return_path'); // Limpiar después de usar
-              this.router.navigateByUrl(returnPath);
+            // Guardar tokens
+            localStorage.setItem('spotify_token', response.access_token);
+            if (response.refresh_token) {
+              localStorage.setItem('spotify_refresh_token', response.refresh_token);
+            }
+
+            // Redirección utilizando los datos del state
+            if (stateData.userId && stateData.userName) {
+              const url = `/citas/${stateData.userId}/${stateData.userName}`;
+              this.router.navigateByUrl(url).then(() => {
+                // Recargar solo el componente de citas si es necesario
+                window.location.reload();
+              });
             } else {
-              this.router.navigate(['/login']);
+              this.router.navigate(['/']);
             }
           },
-          error: (error) => {
-            console.error('Error en callback de Spotify:', error);
-            this.router.navigate(['/login']);
+          error: (err) => {
+            console.error('Error obteniendo token:', err);
+            this.router.navigate(['/']);
           }
         });
-      } else {
-        this.router.navigate(['/login']);
+      } catch (error) {
+        console.error('Error procesando callback:', error);
+        this.router.navigate(['/']);
       }
-    });
+    } else {
+      this.router.navigate(['/']);
+    }
   }
 }

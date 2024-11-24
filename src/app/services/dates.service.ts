@@ -363,10 +363,13 @@ getMensajesNoLeidos(medicoId: string): Observable<number> {
       client_secret: this.SPOTIFY_CLIENT_SECRET
     });
 
-    return this.http.post('https://accounts.spotify.com/api/token', body.toString(), {
-      headers: new HttpHeaders()
-        .set('Content-Type', 'application/x-www-form-urlencoded')
-    });
+    return this.http.post('https://accounts.spotify.com/api/token', 
+      body.toString(),
+      {
+        headers: new HttpHeaders()
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+      }
+    );
   }
 
 
@@ -440,21 +443,17 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'app-remote-control'
     ].join(' ');
 
-    const params = new URLSearchParams({
-      client_id: this.SPOTIFY_CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: this.SPOTIFY_REDIRECT_URI,
-      scope: scopes,
-      show_dialog: 'true',
-      state: JSON.stringify({
-        userId,
-        userName,
-        timestamp: Date.now()
-      })
-    });
+    const authUrl = new URL('https://accounts.spotify.com/authorize');
+    authUrl.searchParams.append('client_id', this.SPOTIFY_CLIENT_ID);
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('redirect_uri', this.SPOTIFY_REDIRECT_URI);
+    authUrl.searchParams.append('scope', scopes);
+    authUrl.searchParams.append('show_dialog', 'true');
+    authUrl.searchParams.append('state', JSON.stringify({ userId, userName }));
 
-    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+    window.location.href = authUrl.toString();
   }
+
 
 
   handleSpotifyCallback(token: string): Observable<any> {
