@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatesService } from '../../services/dates.service';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { take, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-spotify-callback',
@@ -49,8 +49,7 @@ import { takeUntil } from 'rxjs/operators';
     }
   `]
 })
-export class SpotifyCallbackComponent implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
+export class SpotifyCallbackComponent implements OnInit {
   loading = true;
   error: string | null = null;
 
@@ -61,51 +60,66 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
+    this.route.queryParams.pipe(
+      take(1)
+    ).subscribe(params => {
+      const code = params['code'];
+      const state = params['state'];
+      
+      if (!code) {
+        this.redirectToSavedUrl();
+        return;
+      }
 
-    this.route.queryParams
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(params => {
-        const code = params['code'];
-        
-        if (!code) {
-          this.redirectToCitas(userId, userName);
-          return;
-        }
+      let stateData;
+      try {
+        stateData = JSON.parse(state);
+      } catch (e) {
+        console.error('Error parsing state:', e);
+      }
 
-        this.datesService.getSpotifyToken(code).subscribe({
-          next: (response) => {
-            localStorage.setItem('spotify_token', response.access_token);
-            if (response.refresh_token) {
-              localStorage.setItem('spotify_refresh_token', response.refresh_token);
-            }
-            this.redirectToCitas(userId, userName);
-          },
-          error: (err) => {
-            console.error('Error al obtener token:', err);
-            this.redirectToCitas(userId, userName);
+      this.datesService.getSpotifyToken(code).subscribe({
+        next: (response) => {
+          localStorage.setItem('spotify_token', response.access_token);
+          if (response.refresh_token) {
+            localStorage.setItem('spotify_refresh_token', response.refresh_token);
           }
-        });
+          this.redirectToSavedUrl();
+        },
+        error: (err) => {
+          console.error('Error al obtener token:', err);
+          this.redirectToSavedUrl();
+        }
       });
+    });
   }
 
-  private redirectToCitas(userId: string | null, userName: string | null) {
-    if (userId && userName) {
-      // Primero construye la URL completa
-      const baseUrl = 'https://citasmedicas4.netlify.app';
-      const path = `/citas/${encodeURIComponent(userId)}/${encodeURIComponent(userName)}`;
-      const fullUrl = baseUrl + path;
+  private redirectToSavedUrl() {
+    // Obtener la URL guardada
+    const returnUrl = localStorage.getItem('spotify_return_url');
+    
+    if (returnUrl) {
+      // Limpiar la URL guardada
+      localStorage.removeItem('spotify_return_url');
       
-      // Luego redirige
-      window.location.replace(fullUrl);
+      // Construir la URL completa
+      const baseUrl = 'https://citasmedicas4.netlify.app';
+      window.location.href = baseUrl + returnUrl;
     } else {
-      window.location.replace('https://citasmedicas4.netlify.app/citas');
+      // Fallback a la ruta por defecto si no hay URL guardada
+      const userId = localStorage.getItem('userId');
+      const userName = localStorage.getItem('userName');
+      
+      if (userId && userName) {
+        window.location.href = `https://citasmedicas4.netlify.app/citas/${encodeURIComponent(userId)}/${encodeURIComponent(userName)}`;
+      } else {
+        window.location.href = 'https://citasmedicas4.netlify.app/citas';
+      }
     }
   }
 
   ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
+        // Cleanup si es necesario
+
   }
 }
