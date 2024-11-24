@@ -51,11 +51,9 @@ interface SpotifyTokenResponse {
    private readonly SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
   public readonly BASE_URL = 'https://citasmedicas4.netlify.app';
-  private readonly API_URL = 'https://backend-4-seven.vercel.app/api';
    
 
   
-  private readonly REDIRECT_URI = 'https://citasmedicas4.netlify.app/spotify-callback'; //se lo puse al ultimo
 
    private logoutSubject = new Subject<void>();
   logout$ = this.logoutSubject.asObservable();
