@@ -427,62 +427,59 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
 
   
 
-  initializeSpotifyAuth(): void {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    
-    // Crear la URL de retorno completa
-    const returnUrl = `https://citasmedicas4.netlify.app/citas/${userId}/${userName}`;
-    
-    const scopes = [
-      'streaming',
-      'user-read-email',
-      'user-read-private',
-      'user-read-playback-state',
-      'user-modify-playback-state',
-      'user-read-currently-playing',
-      'app-remote-control'
-    ].join(' ');
+  
 
-    // Guardar la URL de retorno
-    localStorage.setItem('spotify_return_url', returnUrl);
 
-    // Construir la URL de autorización
-    const authUrl = new URL('https://accounts.spotify.com/authorize');
-    authUrl.searchParams.append('client_id', this.SPOTIFY_CLIENT_ID);
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('redirect_uri', 'https://citasmedicas4.netlify.app');
-    authUrl.searchParams.append('scope', scopes);
-    authUrl.searchParams.append('show_dialog', 'true');
-    authUrl.searchParams.append('state', JSON.stringify({
+  // MANTENER ESTE Y ACTUALIZARLO
+handleSpotifyCallback(code: string, state: string): Observable<any> {
+  const body = new URLSearchParams({
+    grant_type: 'authorization_code',
+    code: code,
+    redirect_uri: 'https://citasmedicas4.netlify.app',  // URL base
+    client_id: this.SPOTIFY_CLIENT_ID,
+    client_secret: this.SPOTIFY_CLIENT_SECRET
+  });
+
+  return this.http.post('https://accounts.spotify.com/api/token', 
+    body.toString(),
+    {
+      headers: new HttpHeaders()
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+    }
+  );
+}
+
+// AGREGAR ESTE MÉTODO
+initializeSpotifyAuth(): void {
+  const userId = localStorage.getItem('userId');
+  const userName = localStorage.getItem('userName');
+  
+  const scopes = [
+    'streaming',
+    'user-read-email',
+    'user-read-private',
+    'user-read-playback-state',
+    'user-modify-playback-state',
+    'user-read-currently-playing',
+    'app-remote-control'
+  ].join(' ');
+
+  // Construir URL de autorización
+  const params = new URLSearchParams({
+    client_id: this.SPOTIFY_CLIENT_ID,
+    response_type: 'code',
+    redirect_uri: this.BASE_URL,      // URL base simple
+    scope: scopes,
+    show_dialog: 'true',
+    state: JSON.stringify({
       userId,
       userName,
-      returnUrl
-    }));
+      returnUrl: `/citas/${userId}/${userName}`
+    })
+  });
 
-    window.location.href = authUrl.toString();
-  }
-
-
-
-  handleSpotifyCallback(code: string, state: string): Observable<any> {
-    const body = new URLSearchParams({
-      grant_type: 'authorization_code',
-      code: code,
-      redirect_uri: 'https://citasmedicas4.netlify.app',
-      client_id: this.SPOTIFY_CLIENT_ID,
-      client_secret: '9bccdb16cdde4f6d8814ce74585f7e14'
-    });
-
-    return this.http.post('https://accounts.spotify.com/api/token', 
-      body.toString(),
-      {
-        headers: new HttpHeaders()
-          .set('Content-Type', 'application/x-www-form-urlencoded')
-      }
-    );
-  }
-
+  window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+}
 
 
 

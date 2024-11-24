@@ -361,8 +361,6 @@ constructor(
   
  // Método para conectar con Spotify
  connectToSpotify() {
-  const returnPath = `/citas/${this.userId}/${this.userName}`;
-  localStorage.setItem('spotify_return_path', returnPath);
   this.datesService.initializeSpotifyAuth();
 }
 
