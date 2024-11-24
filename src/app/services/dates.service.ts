@@ -430,10 +430,6 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
-    // Guardar la URL actual completa para volver después
-    const returnUrl = `${window.location.pathname}${window.location.search}`;
-    localStorage.setItem('spotify_return_url', returnUrl);
-    
     const scopes = [
       'streaming',
       'user-read-email',
@@ -444,21 +440,24 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'app-remote-control'
     ].join(' ');
   
+    const state = {
+      userId,
+      userName,
+      timestamp: Date.now()
+    };
+  
     const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
       redirect_uri: this.SPOTIFY_REDIRECT_URI,
       scope: scopes,
       show_dialog: 'true',
-      state: JSON.stringify({ 
-        userId, 
-        userName,
-        returnUrl 
-      })
+      state: JSON.stringify(state)
     });
   
     window.location.href = 'https://accounts.spotify.com/authorize?' + params.toString();
   }
+
 
 
 

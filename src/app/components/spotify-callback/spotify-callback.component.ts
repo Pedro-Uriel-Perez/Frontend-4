@@ -9,11 +9,8 @@ import { take, takeUntil } from 'rxjs/operators';
   template: `
     <div class="callback-container">
       <div *ngIf="loading" class="loading">
-        <p>Conectando con Spotify...</p>
+        <p>Procesando autenticación de Spotify...</p>
         <div class="spinner"></div>
-      </div>
-      <div *ngIf="error" class="error">
-        <p>{{ error }}</p>
       </div>
     </div>
   `,
@@ -51,7 +48,6 @@ import { take, takeUntil } from 'rxjs/operators';
 })
 export class SpotifyCallbackComponent implements OnInit {
   loading = true;
-  error: string | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -60,61 +56,56 @@ export class SpotifyCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.pipe(
-      take(1)
-    ).subscribe(params => {
+    this.route.queryParams.pipe(take(1)).subscribe(params => {
       const code = params['code'];
       const state = params['state'];
-      
+
       if (!code) {
-        this.redirectToSavedUrl();
+        this.handleRedirect();
         return;
       }
 
-      let stateData;
       try {
-        stateData = JSON.parse(state);
-      } catch (e) {
-        console.error('Error parsing state:', e);
-      }
+        const stateData = JSON.parse(state);
+        const userId = stateData.userId;
+        const userName = stateData.userName;
 
-      this.datesService.getSpotifyToken(code).subscribe({
-        next: (response) => {
-          localStorage.setItem('spotify_token', response.access_token);
-          if (response.refresh_token) {
-            localStorage.setItem('spotify_refresh_token', response.refresh_token);
+        this.datesService.getSpotifyToken(code).subscribe({
+          next: (response) => {
+            localStorage.setItem('spotify_token', response.access_token);
+            if (response.refresh_token) {
+              localStorage.setItem('spotify_refresh_token', response.refresh_token);
+            }
+            
+            // Redirigir directamente a la ruta específica
+            this.redirectToUserPage(userId, userName);
+          },
+          error: (err) => {
+            console.error('Error al obtener token:', err);
+            this.redirectToUserPage(userId, userName);
           }
-          this.redirectToSavedUrl();
-        },
-        error: (err) => {
-          console.error('Error al obtener token:', err);
-          this.redirectToSavedUrl();
-        }
-      });
+        });
+      } catch (e) {
+        console.error('Error processing callback:', e);
+        this.handleRedirect();
+      }
     });
   }
 
-  private redirectToSavedUrl() {
-    // Obtener la URL guardada
-    const returnUrl = localStorage.getItem('spotify_return_url');
+  private redirectToUserPage(userId: string, userName: string) {
+    // Construir la URL completa y redirigir
+    const url = `/citas/${userId}/${userName}`;
+    window.location.href = `https://citasmedicas4.netlify.app${url}`;
+  }
+
+  private handleRedirect() {
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
     
-    if (returnUrl) {
-      // Limpiar la URL guardada
-      localStorage.removeItem('spotify_return_url');
-      
-      // Construir la URL completa
-      const baseUrl = 'https://citasmedicas4.netlify.app';
-      window.location.href = baseUrl + returnUrl;
+    if (userId && userName) {
+      this.redirectToUserPage(userId, userName);
     } else {
-      // Fallback a la ruta por defecto si no hay URL guardada
-      const userId = localStorage.getItem('userId');
-      const userName = localStorage.getItem('userName');
-      
-      if (userId && userName) {
-        window.location.href = `https://citasmedicas4.netlify.app/citas/${encodeURIComponent(userId)}/${encodeURIComponent(userName)}`;
-      } else {
-        window.location.href = 'https://citasmedicas4.netlify.app/citas';
-      }
+      window.location.href = 'https://citasmedicas4.netlify.app/citas';
     }
   }
 
