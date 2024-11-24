@@ -54,6 +54,7 @@ interface SpotifyTokenResponse {
   private readonly API_URL = 'https://backend-4-seven.vercel.app/api';
    
 
+
   
   private readonly REDIRECT_URI = 'https://citasmedicas4.netlify.app/spotify-callback'; //se lo puse al ultimo
 
@@ -429,16 +430,34 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
   
 
   initializeSpotifyAuth(): void {
-    // Guardar la ruta actual para volver después
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
-    const returnPath = `/citas/${userId}/${userName}`;
     
-    localStorage.setItem('spotify_return_path', returnPath);
-    
-    // Redirigir al endpoint de autenticación de Spotify en el backend
-    window.location.href = `${this.API_URL}/auth/spotify`;
+    const scopes = [
+      'streaming',
+      'user-read-email',
+      'user-read-private',
+      'user-read-playback-state',
+      'user-modify-playback-state',
+      'user-read-currently-playing',
+      'app-remote-control'
+    ].join(' ');
+
+    // Construir los parámetros correctamente
+    const authUrl = new URL('https://accounts.spotify.com/authorize');
+    const params = {
+      client_id: this.SPOTIFY_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri: this.REDIRECT_URI,
+      scope: scopes,
+      show_dialog: 'true',
+      state: JSON.stringify({ userId, userName })
+    };
+
+    // Redirigir a la URL construida
+    window.location.href = authUrl.toString();
   }
+
 
   handleSpotifyCallback(token: string): Observable<any> {
     return this.http.post<any>(`${this.API_URL}/verify-token`, { token }).pipe(
