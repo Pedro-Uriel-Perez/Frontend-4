@@ -119,13 +119,7 @@ const routes: Routes = [
 
     {path: 'chat', component: ChatComponent},
 
-    { path: 'buscador', component: BuscadorComponent},
-
-
-    { 
-      path: '**', 
-      redirectTo: '' 
-    }
+    { path: 'buscador', component: BuscadorComponent}
 
 
 

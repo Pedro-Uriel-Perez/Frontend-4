@@ -429,7 +429,7 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
   initializeSpotifyAuth(): void {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
-  
+    
     const scopes = [
       'streaming',
       'user-read-email',
@@ -445,16 +445,14 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       response_type: 'code',
       redirect_uri: 'https://citasmedicas4.netlify.app/spotify-callback',
       scope: scopes,
-      show_dialog: 'true'
+      show_dialog: 'true',
+      state: JSON.stringify({ userId, userName }) // Añadir información del usuario al state
     });
   
-    // Guardar la URL actual
-    if (userId && userName) {
-      localStorage.setItem('returnPath', `/citas/${userId}/${encodeURIComponent(userName)}`);
-    }
-  
-    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+    window.location.href = 'https://accounts.spotify.com/authorize?' + params.toString();
   }
+
+  
 
   // Método para manejar errores
   private handleError(error: any): Observable<never> {

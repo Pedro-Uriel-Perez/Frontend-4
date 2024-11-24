@@ -61,7 +61,6 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
-    // Obtener userId y userName al inicio
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
 
@@ -69,55 +68,40 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         const code = params['code'];
-        const error = params['error'];
-
-        if (error) {
-          this.handleError('Error en la autorización de Spotify: ' + error);
+        
+        if (!code) {
+          this.redirectToCitas(userId, userName);
           return;
         }
 
-        if (code) {
-          this.loading = true;
-          this.datesService.getSpotifyToken(code).subscribe({
-            next: (response) => {
-              localStorage.setItem('spotify_token', response.access_token);
-              if (response.refresh_token) {
-                localStorage.setItem('spotify_refresh_token', response.refresh_token);
-              }
-              // Redirigir directamente a la página de citas del usuario
-              if (userId && userName) {
-                window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${encodeURIComponent(userName)}`;
-              } else {
-                window.location.href = 'https://citasmedicas4.netlify.app/citas';
-              }
-            },
-            error: (err) => {
-              console.error('Error al obtener token de Spotify:', err);
-              this.handleError('Error al conectar con Spotify');
+        this.datesService.getSpotifyToken(code).subscribe({
+          next: (response) => {
+            localStorage.setItem('spotify_token', response.access_token);
+            if (response.refresh_token) {
+              localStorage.setItem('spotify_refresh_token', response.refresh_token);
             }
-          });
-        } else {
-          this.handleError('No se recibió código de autorización');
-        }
+            this.redirectToCitas(userId, userName);
+          },
+          error: (err) => {
+            console.error('Error al obtener token:', err);
+            this.redirectToCitas(userId, userName);
+          }
+        });
       });
   }
 
-  private handleError(errorMessage: string) {
-    this.loading = false;
-    this.error = errorMessage;
-    console.error(errorMessage);
-    
-    // Redirigir después de mostrar el error
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    
-    setTimeout(() => {
-      if (userId && userName) {
-        window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${encodeURIComponent(userName)}`;
-      } else {
-        window.location.href = 'https://citasmedicas4.netlify.app/citas';
-      }
-    }, 2000);
+  private redirectToCitas(userId: string | null, userName: string | null) {
+    if (userId && userName) {
+      // Primero construye la URL completa
+      const baseUrl = 'https://citasmedicas4.netlify.app';
+      const path = `/citas/${encodeURIComponent(userId)}/${encodeURIComponent(userName)}`;
+      const fullUrl = baseUrl + path;
+      
+      // Luego redirige
+      window.location.replace(fullUrl);
+    } else {
+      window.location.replace('https://citasmedicas4.netlify.app/citas');
+    }
   }
 
   ngOnDestroy() {
