@@ -114,6 +114,8 @@ const routes: Routes = [
 
     // para spotyfy
     { path: 'spotify-callback', component: SpotifyCallbackComponent },
+    
+    {path: 'callback',component: SpotifyCallbackComponent},
 
     // Para chat
 

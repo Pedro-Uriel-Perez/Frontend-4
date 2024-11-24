@@ -54,7 +54,6 @@ interface SpotifyTokenResponse {
   private readonly API_URL = 'https://backend-4-seven.vercel.app/api';
    
 
-
   
   private readonly REDIRECT_URI = 'https://citasmedicas4.netlify.app/spotify-callback'; //se lo puse al ultimo
 
@@ -354,22 +353,20 @@ getMensajesNoLeidos(medicoId: string): Observable<number> {
   }
 
   // Método para obtener token
+
   getSpotifyToken(code: string): Observable<any> {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code: code,
-      redirect_uri: this.REDIRECT_URI,
+      redirect_uri: this.SPOTIFY_REDIRECT_URI,
       client_id: this.SPOTIFY_CLIENT_ID,
       client_secret: this.SPOTIFY_CLIENT_SECRET
     });
 
-    return this.http.post('https://accounts.spotify.com/api/token', 
-      body.toString(),
-      {
-        headers: new HttpHeaders()
-          .set('Content-Type', 'application/x-www-form-urlencoded')
-      }
-    );
+    return this.http.post('https://accounts.spotify.com/api/token', body.toString(), {
+      headers: new HttpHeaders()
+        .set('Content-Type', 'application/x-www-form-urlencoded')
+    });
   }
 
 
@@ -443,19 +440,20 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'app-remote-control'
     ].join(' ');
 
-    // Construir los parámetros correctamente
-    const authUrl = new URL('https://accounts.spotify.com/authorize');
-    const params = {
+    const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: this.REDIRECT_URI,
+      redirect_uri: this.SPOTIFY_REDIRECT_URI,
       scope: scopes,
       show_dialog: 'true',
-      state: JSON.stringify({ userId, userName })
-    };
+      state: JSON.stringify({
+        userId,
+        userName,
+        timestamp: Date.now()
+      })
+    });
 
-    // Redirigir a la URL construida
-    window.location.href = authUrl.toString();
+    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
 
 
