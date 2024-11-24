@@ -1,15 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatesService } from '../../services/dates.service';
-import { Subject } from 'rxjs';
-import { take, takeUntil } from 'rxjs/operators';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-spotify-callback',
   template: `
     <div class="callback-container">
       <div *ngIf="loading" class="loading">
-        <p>Procesando autenticación de Spotify...</p>
+        <p>Conectando con Spotify...</p>
         <div class="spinner"></div>
       </div>
     </div>
@@ -20,23 +19,16 @@ import { take, takeUntil } from 'rxjs/operators';
       justify-content: center;
       align-items: center;
       height: 100vh;
+    }
+    .loading {
       text-align: center;
-    }
-    .loading, .error {
-      padding: 20px;
-      border-radius: 8px;
-      background: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .error {
-      color: red;
     }
     .spinner {
       width: 40px;
       height: 40px;
-      margin: 10px auto;
+      margin: 20px auto;
       border: 4px solid #f3f3f3;
-      border-top: 4px solid #1DB954;
+      border-top: 4px solid #3498db;
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
@@ -56,61 +48,56 @@ export class SpotifyCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    // Extraer código y estado de los query params
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const code = params['code'];
       const state = params['state'];
 
       if (!code) {
-        this.handleRedirect();
+        console.error('No se recibió código de Spotify');
+        this.navigateToHome();
         return;
       }
 
       try {
+        // Parsear el estado
         const stateData = JSON.parse(state);
-        const userId = stateData.userId;
-        const userName = stateData.userName;
+        const { userId, userName } = stateData;
 
+        // Obtener el token
         this.datesService.getSpotifyToken(code).subscribe({
           next: (response) => {
+            // Guardar tokens
             localStorage.setItem('spotify_token', response.access_token);
             if (response.refresh_token) {
               localStorage.setItem('spotify_refresh_token', response.refresh_token);
             }
-            
-            // Redirigir directamente a la ruta específica
-            this.redirectToUserPage(userId, userName);
+
+            // Navegar usando Router en lugar de window.location
+            this.navigateToUserPage(userId, userName);
           },
           error: (err) => {
             console.error('Error al obtener token:', err);
-            this.redirectToUserPage(userId, userName);
+            this.navigateToUserPage(userId, userName);
           }
         });
       } catch (e) {
-        console.error('Error processing callback:', e);
-        this.handleRedirect();
+        console.error('Error al procesar callback:', e);
+        this.navigateToHome();
       }
     });
   }
 
-  private redirectToUserPage(userId: string, userName: string) {
-    // Construir la URL completa y redirigir
-    const url = `/citas/${userId}/${userName}`;
-    window.location.href = `https://citasmedicas4.netlify.app${url}`;
+  private navigateToUserPage(userId: string, userName: string) {
+    // Usar Router.navigate en lugar de window.location
+    this.router.navigate(['/citas', userId, userName])
+      .catch(err => {
+        console.error('Error en navegación:', err);
+        this.navigateToHome();
+      });
   }
 
-  private handleRedirect() {
-    const userId = localStorage.getItem('userId');
-    const userName = localStorage.getItem('userName');
-    
-    if (userId && userName) {
-      this.redirectToUserPage(userId, userName);
-    } else {
-      window.location.href = 'https://citasmedicas4.netlify.app/citas';
-    }
-  }
-
-  ngOnDestroy() {
-        // Cleanup si es necesario
-
+  private navigateToHome() {
+    this.router.navigate(['/']);
   }
 }
