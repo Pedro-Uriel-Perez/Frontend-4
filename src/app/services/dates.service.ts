@@ -433,7 +433,9 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
-    // Definir los scopes que necesitas
+    // Crear la URL de retorno completa
+    const returnUrl = `https://citasmedicas4.netlify.app/citas/${userId}/${userName}`;
+    
     const scopes = [
       'streaming',
       'user-read-email',
@@ -443,35 +445,24 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'user-read-currently-playing',
       'app-remote-control'
     ].join(' ');
-  
-    // Construir la URL base para el retorno
-    const baseUrl = 'https://citasmedicas4.netlify.app';
-    const currentPath = `/citas/${userId}/${userName}`;
-  
-    // Guardar la ruta de retorno
-    localStorage.setItem('spotify_return_path', currentPath);
-  
-    // Construir el state con la información necesaria
-    const state = JSON.stringify({
+
+    // Guardar la URL de retorno
+    localStorage.setItem('spotify_return_url', returnUrl);
+
+    // Construir la URL de autorización
+    const authUrl = new URL('https://accounts.spotify.com/authorize');
+    authUrl.searchParams.append('client_id', this.SPOTIFY_CLIENT_ID);
+    authUrl.searchParams.append('response_type', 'code');
+    authUrl.searchParams.append('redirect_uri', 'https://citasmedicas4.netlify.app');
+    authUrl.searchParams.append('scope', scopes);
+    authUrl.searchParams.append('show_dialog', 'true');
+    authUrl.searchParams.append('state', JSON.stringify({
       userId,
       userName,
-      timestamp: Date.now(),
-      returnPath: currentPath
-    });
-  
-    // Construir los parámetros de la URL
-    const params = new URLSearchParams({
-      client_id: this.SPOTIFY_CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: baseUrl,  // Usar la URL base como redirect_uri
-      scope: scopes,
-      show_dialog: 'true',
-      state: state
-    });
-  
-    // Redirigir a Spotify
-    const authUrl = 'https://accounts.spotify.com/authorize?' + params.toString();
-    window.location.href = authUrl;
+      returnUrl
+    }));
+
+    window.location.href = authUrl.toString();
   }
 
 
