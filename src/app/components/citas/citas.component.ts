@@ -291,119 +291,85 @@ private cargarDatosIniciales(userId: string, userName: string) {
 
 
   ngOnInit(): void {
-    // Primero, verificar si venimos de un callback de Spotify
+    const user = this.datesService.getCurrentUser();
+    if (user) {
+      this.cargarDatosIniciales(user.id, user.name);
+    }
+
+    // Verificar si venimos de un callback de Spotify
     this.route.queryParams.pipe(
       takeUntil(this.destroy$)
     ).subscribe(params => {
-      const spotifyCode = params['code'];
-      if (spotifyCode) {
-        // Procesar el código de Spotify
-        this.datesService.getSpotifyToken(spotifyCode).subscribe({
-          next: (response) => {
-            localStorage.setItem('spotify_token', response.access_token);
-            if (response.refresh_token) {
-              localStorage.setItem('spotify_refresh_token', response.refresh_token);
-            }
-            this.spotifyConnected = true;
-            
-            // Recuperar la ruta guardada y redirigir
-            const savedPath = localStorage.getItem('spotify_return_path');
-            if (savedPath) {
-              localStorage.removeItem('spotify_return_path');
-              this.router.navigate([savedPath], { replaceUrl: true });
-            } else {
-              this.procederConInicializacionNormal();
-            }
-          },
-          error: (err) => {
-            console.error('Error al obtener token de Spotify:', err);
-            this.spotifyConnected = false;
-            this.procederConInicializacionNormal();
-          }
-        });
-      } else {
-        this.procederConInicializacionNormal();
-      }
-    });
-  }
-  
-  
+      const code = params['code'];
+      const state = params['state'];
 
-
-  private handleFacebookUser(): void {
-    this.isConnectedWithFacebook = true;
-    this.idPaciente = this.facebookUser.id;
-    this.nombrePaciente = this.facebookUser.name;
-    
-    const currentUrl = this.router.url;
-    const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
-    
-    if (currentUrl !== expectedUrl) {
-      this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
-        replaceUrl: true
-      });
-    } else {
-      this.procederConInicializacion();
-      this.checkSpotifyStatus();
-    }
-  }
-  
-  private handleNormalUser(): void {
-    this.route.params.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(params => {
-      this.idPaciente = params['userId'] || localStorage.getItem('userId') || '';
-      this.nombrePaciente = params['userName'] || localStorage.getItem('userName') || '';
-      
-      if (!this.idPaciente || !this.nombrePaciente) {
-        this.handleTokenParams();
+      if (code && state) {
+        try {
+          const stateData = JSON.parse(state);
+          this.datesService.getSpotifyToken(code).subscribe({
+            next: (response) => {
+              localStorage.setItem('spotify_token', response.access_token);
+              if (response.refresh_token) {
+                localStorage.setItem('spotify_refresh_token', response.refresh_token);
+              }
+              this.spotifyConnected = true;
+              
+              // Eliminar los parámetros de la URL manteniendo la ruta actual
+              this.router.navigate([], {
+                relativeTo: this.route,
+                queryParams: {},
+                replaceUrl: true
+              }).then(() => {
+                this.procederConInicializacion();
+                this.checkSpotifyStatus();
+              });
+            },
+            error: (err) => {
+              console.error('Error al obtener token:', err);
+              this.spotifyConnected = false;
+              this.procederConInicializacion();
+            }
+          });
+        } catch (error) {
+          console.error('Error procesando state:', error);
+          this.procederConInicializacion();
+        }
       } else {
         this.procederConInicializacion();
-        this.checkSpotifyStatus();
       }
     });
+
+    // Suscribirse a nuevos mensajes
+    this.datesService.getMensajesObservable()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(mensajes => {
+        console.log('Nuevos mensajes recibidos:', mensajes);
+        this.mensajes = mensajes;
+        this.scrollToBottom();
+      });
   }
-  private handleTokenParams(): void {
-    this.route.queryParams.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(queryParams => {
-      const token = queryParams['token'];
-      if (token) {
-        localStorage.setItem('auth_token', token);
-        try {
-          const decodedToken = jwt_decode(token);
-          this.idPaciente = decodedToken.userId;
-          this.nombrePaciente = decodedToken.userName;
-          localStorage.setItem('userId', this.idPaciente);
-          localStorage.setItem('userName', this.nombrePaciente);
-        } catch (error) {
-          console.error('Error al decodificar el token:', error);
-        }
-      }
-      this.procederConInicializacion();
-      this.checkSpotifyStatus();
-    });
-  }
-
-  // En cualquier componente donde quieras iniciar la conexión con Spotify
-
-
-// Método actualizado para conectar con Spotify
-connectToSpotify() {
-  // Guardar la ruta actual antes de redirigir
-  const currentPath = `/citas/${this.idPaciente}/${this.nombrePaciente}`;
-  localStorage.setItem('spotify_return_path', currentPath);
   
-  // Iniciar autenticación de Spotify
+  
+
+
+  
+ // Método para conectar con Spotify
+ connectToSpotify() {
+  const returnPath = `/citas/${this.userId}/${this.userName}`;
+  localStorage.setItem('spotify_return_path', returnPath);
   this.datesService.initializeSpotifyAuth();
 }
 
-
+// Método para alternar la sección de Spotify
 toggleSpotifySection() {
-  this.showSpotifySection = !this.showSpotifySection;
+  if (!this.spotifyConnected) {
+    this.connectToSpotify();
+  } else {
+    this.showSpotifySection = !this.showSpotifySection;
+  }
 }
 
-// Opcional: método para verificar si la música está reproduciéndose
+// Verificar estado de Spotify
 checkSpotifyStatus() {
   if (this.spotifyConnected) {
     this.datesService.getWaitingRoomMusic().subscribe({
@@ -418,6 +384,7 @@ checkSpotifyStatus() {
     });
   }
 }
+
 
 // Método para manejar la detención de Spotify y navegación
 private stopSpotifyAndNavigate() {

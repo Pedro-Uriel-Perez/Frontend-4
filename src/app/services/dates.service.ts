@@ -433,6 +433,7 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
     
+    // Definir los scopes que necesitas
     const scopes = [
       'streaming',
       'user-read-email',
@@ -442,27 +443,54 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'user-read-currently-playing',
       'app-remote-control'
     ].join(' ');
-
-    const authUrl = new URL('https://accounts.spotify.com/authorize');
-    authUrl.searchParams.append('client_id', this.SPOTIFY_CLIENT_ID);
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('redirect_uri', this.SPOTIFY_REDIRECT_URI);
-    authUrl.searchParams.append('scope', scopes);
-    authUrl.searchParams.append('show_dialog', 'true');
-    authUrl.searchParams.append('state', JSON.stringify({ userId, userName }));
-
-    window.location.href = authUrl.toString();
+  
+    // Construir la URL base para el retorno
+    const baseUrl = 'https://citasmedicas4.netlify.app';
+    const currentPath = `/citas/${userId}/${userName}`;
+  
+    // Guardar la ruta de retorno
+    localStorage.setItem('spotify_return_path', currentPath);
+  
+    // Construir el state con la información necesaria
+    const state = JSON.stringify({
+      userId,
+      userName,
+      timestamp: Date.now(),
+      returnPath: currentPath
+    });
+  
+    // Construir los parámetros de la URL
+    const params = new URLSearchParams({
+      client_id: this.SPOTIFY_CLIENT_ID,
+      response_type: 'code',
+      redirect_uri: baseUrl,  // Usar la URL base como redirect_uri
+      scope: scopes,
+      show_dialog: 'true',
+      state: state
+    });
+  
+    // Redirigir a Spotify
+    const authUrl = 'https://accounts.spotify.com/authorize?' + params.toString();
+    window.location.href = authUrl;
   }
 
 
 
-  handleSpotifyCallback(token: string): Observable<any> {
-    return this.http.post<any>(`${this.API_URL}/verify-token`, { token }).pipe(
-      tap((response: any) => {
-        if (response.valid && response.decoded.spotify_token) {
-          localStorage.setItem('spotify_token', response.decoded.spotify_token);
-        }
-      })
+  handleSpotifyCallback(code: string, state: string): Observable<any> {
+    const body = new URLSearchParams({
+      grant_type: 'authorization_code',
+      code: code,
+      redirect_uri: 'https://citasmedicas4.netlify.app',
+      client_id: this.SPOTIFY_CLIENT_ID,
+      client_secret: '9bccdb16cdde4f6d8814ce74585f7e14'
+    });
+
+    return this.http.post('https://accounts.spotify.com/api/token', 
+      body.toString(),
+      {
+        headers: new HttpHeaders()
+          .set('Content-Type', 'application/x-www-form-urlencoded')
+      }
     );
   }
 
