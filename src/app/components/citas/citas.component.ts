@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DatesService } from '../../services/dates.service';
 import { Citas } from '../../models/Citas';
 import * as L from 'leaflet';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, take, takeUntil } from 'rxjs';
 import { IMensaje } from 'src/app/models/chat.model';
 
 
@@ -43,13 +43,14 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
   citaGenerada: boolean = false;
   historialCitas: Citas[] = [];
   mostrarHistorial: boolean = false;
-  userId: string | null = null;
-  userName: string | null = null;
+  //userId: string | null = null;
+  //userName: string | null = null;
 
   
   mostrarMapa = false;
   
-  
+  userId: string = '';  // Cambiado de string | null a string
+  userName: string = ''; // Cambiado de string | null a string
 
   map: L.Map | undefined;
   mapInitialized: boolean = false;
@@ -150,6 +151,8 @@ mensajes: any[] = [];
 nuevoMensaje: string = '';
 
 
+
+
 constructor(
   private datesService: DatesService,
   private route: ActivatedRoute,
@@ -157,13 +160,29 @@ constructor(
   private ngZone: NgZone
 ) {
   this.spotifyConnected = !!localStorage.getItem('spotify_token');
-  this.idPaciente = localStorage.getItem('pacienteId') || '';
+  
+  // Obtener parámetros de la ruta y manejarlos de forma segura
+  this.route.params.subscribe(params => {
+    if (params['userId']) {
+      this.userId = params['userId'];
+      localStorage.setItem('userId', this.userId);
+    }
+    
+    if (params['userName']) {
+      this.userName = params['userName'];
+      localStorage.setItem('userName', this.userName);
+    }
+  });
+
   // Cargar datos inmediatamente si hay un usuario autenticado
   const user = this.datesService.getCurrentUser();
   if (user) {
-    this.cargarDatosIniciales(user.id, user.name);
+    this.cargarDatosIniciales(user.id || '', user.name || '');
   }
 }
+
+
+
 
 private cargarDatosIniciales(userId: string, userName: string) {
   this.idPaciente = userId;
@@ -266,14 +285,116 @@ private cargarDatosIniciales(userId: string, userName: string) {
     }
   }
 
+
+  //aqui enmpeza spotyfy 
+
+
+
+  ngOnInit(): void {
+    // Primero, verificar si venimos de un callback de Spotify
+    this.route.queryParams.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      const spotifyCode = params['code'];
+      if (spotifyCode) {
+        // Procesar el código de Spotify
+        this.datesService.getSpotifyToken(spotifyCode).subscribe({
+          next: (response) => {
+            localStorage.setItem('spotify_token', response.access_token);
+            if (response.refresh_token) {
+              localStorage.setItem('spotify_refresh_token', response.refresh_token);
+            }
+            this.spotifyConnected = true;
+            
+            // Recuperar la ruta guardada y redirigir
+            const savedPath = localStorage.getItem('spotify_return_path');
+            if (savedPath) {
+              localStorage.removeItem('spotify_return_path');
+              this.router.navigate([savedPath], { replaceUrl: true });
+            } else {
+              this.procederConInicializacionNormal();
+            }
+          },
+          error: (err) => {
+            console.error('Error al obtener token de Spotify:', err);
+            this.spotifyConnected = false;
+            this.procederConInicializacionNormal();
+          }
+        });
+      } else {
+        this.procederConInicializacionNormal();
+      }
+    });
+  }
   
+  
+
+
+  private handleFacebookUser(): void {
+    this.isConnectedWithFacebook = true;
+    this.idPaciente = this.facebookUser.id;
+    this.nombrePaciente = this.facebookUser.name;
+    
+    const currentUrl = this.router.url;
+    const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
+    
+    if (currentUrl !== expectedUrl) {
+      this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
+        replaceUrl: true
+      });
+    } else {
+      this.procederConInicializacion();
+      this.checkSpotifyStatus();
+    }
+  }
+  
+  private handleNormalUser(): void {
+    this.route.params.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(params => {
+      this.idPaciente = params['userId'] || localStorage.getItem('userId') || '';
+      this.nombrePaciente = params['userName'] || localStorage.getItem('userName') || '';
+      
+      if (!this.idPaciente || !this.nombrePaciente) {
+        this.handleTokenParams();
+      } else {
+        this.procederConInicializacion();
+        this.checkSpotifyStatus();
+      }
+    });
+  }
+  private handleTokenParams(): void {
+    this.route.queryParams.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(queryParams => {
+      const token = queryParams['token'];
+      if (token) {
+        localStorage.setItem('auth_token', token);
+        try {
+          const decodedToken = jwt_decode(token);
+          this.idPaciente = decodedToken.userId;
+          this.nombrePaciente = decodedToken.userName;
+          localStorage.setItem('userId', this.idPaciente);
+          localStorage.setItem('userName', this.nombrePaciente);
+        } catch (error) {
+          console.error('Error al decodificar el token:', error);
+        }
+      }
+      this.procederConInicializacion();
+      this.checkSpotifyStatus();
+    });
+  }
+
   // En cualquier componente donde quieras iniciar la conexión con Spotify
+
+
+// Método actualizado para conectar con Spotify
 connectToSpotify() {
-  // Guardar la URL completa actual, incluyendo los parámetros
-  const currentUrl = window.location.href;
-  localStorage.setItem('originalUrl', currentUrl);
+  // Guardar la ruta actual antes de redirigir
+  const currentPath = `/citas/${this.idPaciente}/${this.nombrePaciente}`;
+  localStorage.setItem('spotify_return_path', currentPath);
   
-  // Iniciar la autenticación de Spotify
+  // Iniciar autenticación de Spotify
   this.datesService.initializeSpotifyAuth();
 }
 
@@ -418,8 +539,9 @@ private stopSpotifyAndNavigate() {
 
   
 
-  ngOnInit(): void {
-
+ 
+// Método auxiliar que contiene tu lógica original de ngOnInit
+private procederConInicializacionNormal(): void {
     const user = this.datesService.getCurrentUser();
     if (user) {
       this.cargarDatosIniciales(user.id, user.name);
@@ -486,21 +608,25 @@ private stopSpotifyAndNavigate() {
           this.checkSpotifyStatus();
         }
       });
+
       // Suscribirse a nuevos mensajes
-    this.datesService.getMensajesObservable().subscribe(mensajes => {
-      console.log('Nuevos mensajes recibidos:', mensajes);
-      this.mensajes = mensajes;
-      this.scrollToBottom();  
-    });
+      this.datesService.getMensajesObservable().subscribe(mensajes => {
+        console.log('Nuevos mensajes recibidos:', mensajes);
+        this.mensajes = mensajes;
+        this.scrollToBottom();  
+      });
     }
-  }
+}
   
   
+
   ngOnDestroy() {
+    if (this.spotifyConnected) {
+      this.datesService.stopSpotifyPlayback().subscribe();
+    }
     this.destroy$.next();
     this.destroy$.complete();
   }
-
   
   private procederConInicializacion(): void {
     if (this.idPaciente && this.nombrePaciente) {
