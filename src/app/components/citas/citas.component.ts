@@ -510,95 +510,18 @@ private stopSpotifyAndNavigate() {
 
   
 
- 
-// Método auxiliar que contiene tu lógica original de ngOnInit
-private procederConInicializacionNormal(): void {
-    const user = this.datesService.getCurrentUser();
-    if (user) {
-      this.cargarDatosIniciales(user.id, user.name);
-    }
 
-    // Inicializar las suscripciones de logout
-    this.datesService.logout$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.stopSpotifyAndNavigate();
-      });
-  
-    // Primero, intentamos obtener la información del usuario de Facebook
-    this.facebookUser = this.datesService.getCurrentUser();
-    
-    if (this.facebookUser && this.facebookUser.provider === 'FACEBOOK') {
-      this.isConnectedWithFacebook = true;
-      this.idPaciente = this.facebookUser.id;
-      this.nombrePaciente = this.facebookUser.name;
-      
-      // Verificar si estamos en la URL correcta
-      const currentUrl = this.router.url;
-      const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
-      
-      if (currentUrl !== expectedUrl) {
-        // Si no estamos en la URL correcta, redirigir
-        this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
-          replaceUrl: true // Esto reemplazará la entrada en el historial
-        });
-      } else {
-        this.procederConInicializacion();
-        this.checkSpotifyStatus();
-      }
-    } else {
-      // Si no hay usuario de Facebook, seguimos con la lógica existente
-      this.route.params.pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(params => {
-        this.idPaciente = params['userId'] || localStorage.getItem('userId') || '';
-        this.nombrePaciente = params['userName'] || localStorage.getItem('userName') || '';
-        
-        if (!this.idPaciente || !this.nombrePaciente) {
-          this.route.queryParams.pipe(
-            takeUntil(this.destroy$)
-          ).subscribe(queryParams => {
-            const token = queryParams['token'];
-            if (token) {
-              localStorage.setItem('auth_token', token);
-              try {
-                const decodedToken = jwt_decode(token);
-                this.idPaciente = decodedToken.userId;
-                this.nombrePaciente = decodedToken.userName;
-                localStorage.setItem('userId', this.idPaciente);
-                localStorage.setItem('userName', this.nombrePaciente);
-              } catch (error) {
-                console.error('Error al decodificar el token:', error);
-              }
-            }
-            this.procederConInicializacion();
-            this.checkSpotifyStatus();
-          });
-        } else {
-          this.procederConInicializacion();
-          this.checkSpotifyStatus();
-        }
-      });
-
-      // Suscribirse a nuevos mensajes
-      this.datesService.getMensajesObservable().subscribe(mensajes => {
-        console.log('Nuevos mensajes recibidos:', mensajes);
-        this.mensajes = mensajes;
-        this.scrollToBottom();  
-      });
-    }
-}
   
   
 
   ngOnDestroy() {
-    if (this.spotifyConnected) {
-      this.datesService.stopSpotifyPlayback().subscribe();
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }
   
+
+
+
   private procederConInicializacion(): void {
     if (this.idPaciente && this.nombrePaciente) {
       // Verificar Facebook URL
