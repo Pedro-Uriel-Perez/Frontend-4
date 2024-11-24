@@ -48,13 +48,6 @@ export class CitasComponent implements OnInit, AfterViewInit, OnDestroy {
 
   
   mostrarMapa = false;
-
-
-  
-
-  
-
-
   
   
 

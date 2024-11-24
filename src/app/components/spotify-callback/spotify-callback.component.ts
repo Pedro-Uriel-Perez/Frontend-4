@@ -61,17 +61,21 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit() {
+    // Obtener userId y userName al inicio
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+
     this.route.queryParams
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         const code = params['code'];
         const error = params['error'];
-  
+
         if (error) {
           this.handleError('Error en la autorización de Spotify: ' + error);
           return;
         }
-  
+
         if (code) {
           this.loading = true;
           this.datesService.getSpotifyToken(code).subscribe({
@@ -80,7 +84,12 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
               if (response.refresh_token) {
                 localStorage.setItem('spotify_refresh_token', response.refresh_token);
               }
-              this.navigateBack();
+              // Redirigir directamente a la página de citas del usuario
+              if (userId && userName) {
+                window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${encodeURIComponent(userName)}`;
+              } else {
+                window.location.href = 'https://citasmedicas4.netlify.app/citas';
+              }
             },
             error: (err) => {
               console.error('Error al obtener token de Spotify:', err);
@@ -97,32 +106,19 @@ export class SpotifyCallbackComponent implements OnInit, OnDestroy {
     this.loading = false;
     this.error = errorMessage;
     console.error(errorMessage);
-    setTimeout(() => this.navigateBack(), 2000);
-  }
-
-  
-
-  private navigateBack() {
-    const returnPath = localStorage.getItem('returnPath');
-    const currentUserId = localStorage.getItem('userId');
-    const currentUserName = localStorage.getItem('userName');
-  
+    
+    // Redirigir después de mostrar el error
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
+    
     setTimeout(() => {
-      if (returnPath) {
-        // Navegar a la ruta guardada
-        window.location.href = `https://citasmedicas4.netlify.app${returnPath}`;
-        localStorage.removeItem('returnPath');
-      } else if (currentUserId && currentUserName) {
-        // Si no hay ruta guardada pero tenemos info del usuario
-        window.location.href = `https://citasmedicas4.netlify.app/citas/${currentUserId}/${encodeURIComponent(currentUserName)}`;
+      if (userId && userName) {
+        window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${encodeURIComponent(userName)}`;
       } else {
-        // Fallback a la ruta principal
         window.location.href = 'https://citasmedicas4.netlify.app/citas';
       }
-    }, 1000);
+    }, 2000);
   }
-
-
 
   ngOnDestroy() {
     this.destroy$.next();

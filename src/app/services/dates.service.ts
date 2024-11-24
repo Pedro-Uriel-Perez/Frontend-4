@@ -371,6 +371,8 @@ getMensajesNoLeidos(medicoId: string): Observable<number> {
     );
   }
 
+
+  
   // Método para obtener música de sala de espera
   getWaitingRoomMusic(): Observable<any> {
     const headers = new HttpHeaders()
@@ -425,9 +427,8 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
   // Método para inicializar la autenticación de Spotify
 
   initializeSpotifyAuth(): void {
-    // Guardar la URL actual completa antes de redirigir
-    const currentPath = window.location.pathname + window.location.search;
-    localStorage.setItem('returnPath', currentPath);
+    const userId = localStorage.getItem('userId');
+    const userName = localStorage.getItem('userName');
   
     const scopes = [
       'streaming',
@@ -442,10 +443,15 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
     const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: this.SPOTIFY_REDIRECT_URI,
+      redirect_uri: 'https://citasmedicas4.netlify.app/spotify-callback',
       scope: scopes,
       show_dialog: 'true'
     });
+  
+    // Guardar la URL actual
+    if (userId && userName) {
+      localStorage.setItem('returnPath', `/citas/${userId}/${encodeURIComponent(userName)}`);
+    }
   
     window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
