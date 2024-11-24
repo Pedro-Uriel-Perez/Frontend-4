@@ -51,6 +51,7 @@ interface SpotifyTokenResponse {
    private readonly SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
   public readonly BASE_URL = 'https://citasmedicas4.netlify.app';
+  private readonly API_URL = 'https://backend-4-seven.vercel.app/api';
    
 
   
@@ -425,34 +426,28 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
 
   // Método para inicializar la autenticación de Spotify
 
+  
+
   initializeSpotifyAuth(): void {
+    // Guardar la ruta actual para volver después
     const userId = localStorage.getItem('userId');
     const userName = localStorage.getItem('userName');
+    const returnPath = `/citas/${userId}/${userName}`;
     
-    const scopes = [
-      'streaming',
-      'user-read-email',
-      'user-read-private',
-      'user-read-playback-state',
-      'user-modify-playback-state',
-      'user-read-currently-playing',
-      'app-remote-control'
-    ].join(' ');
-  
-    const params = new URLSearchParams({
-      client_id: this.SPOTIFY_CLIENT_ID,
-      response_type: 'code',
-      redirect_uri: this.REDIRECT_URI,
-      scope: scopes,
-      show_dialog: 'true',
-      state: JSON.stringify({
-        userId,
-        userName,
-        return_path: `/citas/${userId}/${userName}`
+    localStorage.setItem('spotify_return_path', returnPath);
+    
+    // Redirigir al endpoint de autenticación de Spotify en el backend
+    window.location.href = `${this.API_URL}/auth/spotify`;
+  }
+
+  handleSpotifyCallback(token: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/verify-token`, { token }).pipe(
+      tap((response: any) => {
+        if (response.valid && response.decoded.spotify_token) {
+          localStorage.setItem('spotify_token', response.decoded.spotify_token);
+        }
       })
-    });
-  
-    window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
+    );
   }
 
 

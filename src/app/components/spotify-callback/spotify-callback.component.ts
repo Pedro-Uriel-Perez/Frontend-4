@@ -36,43 +36,35 @@ import { take } from 'rxjs/operators';
   `]
 })
 
-
 export class SpotifyCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private datesService: DatesService
   ) {}
 
   ngOnInit() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
-    const state = urlParams.get('state');
-
-    if (code && state) {
-      try {
-        const stateData = JSON.parse(state);
-        
-        this.datesService.getSpotifyToken(code).subscribe({
+    this.route.queryParams.subscribe(params => {
+      const token = params['token'];
+      if (token) {
+        this.datesService.handleSpotifyCallback(token).subscribe({
           next: (response) => {
-            localStorage.setItem('spotify_token', response.access_token);
-            if (response.refresh_token) {
-              localStorage.setItem('spotify_refresh_token', response.refresh_token);
+            if (response.valid) {
+              const returnPath = localStorage.getItem('spotify_return_path') || '/citas';
+              localStorage.removeItem('spotify_return_path'); // Limpiar después de usar
+              this.router.navigateByUrl(returnPath);
+            } else {
+              this.router.navigate(['/login']);
             }
-            
-            // Redirección directa a la página de citas
-            window.location.href = this.datesService.BASE_URL + stateData.return_path;
           },
-          error: (err) => {
-            console.error('Error al obtener token:', err);
-            window.location.href = this.datesService.BASE_URL + stateData.return_path;
+          error: (error) => {
+            console.error('Error en callback de Spotify:', error);
+            this.router.navigate(['/login']);
           }
         });
-      } catch (e) {
-        console.error('Error al procesar callback:', e);
-        window.location.href = this.datesService.BASE_URL + '/citas';
+      } else {
+        this.router.navigate(['/login']);
       }
-    } else {
-      window.location.href = this.datesService.BASE_URL + '/citas';
-    }
+    });
   }
 }
