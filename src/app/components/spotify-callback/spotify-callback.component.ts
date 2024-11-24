@@ -7,10 +7,7 @@ import { take } from 'rxjs/operators';
   selector: 'app-spotify-callback',
   template: `
     <div class="callback-container">
-      <div *ngIf="loading" class="loading">
-        <p>Conectando con Spotify...</p>
-        <div class="spinner"></div>
-      </div>
+      <p>Procesando autenticación de Spotify...</p>
     </div>
   `,
   styles: [`
@@ -38,9 +35,9 @@ import { take } from 'rxjs/operators';
     }
   `]
 })
-export class SpotifyCallbackComponent implements OnInit {
-  loading = true;
 
+
+export class SpotifyCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -48,56 +45,44 @@ export class SpotifyCallbackComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    // Extraer código y estado de los query params
     this.route.queryParams.pipe(take(1)).subscribe(params => {
       const code = params['code'];
       const state = params['state'];
 
       if (!code) {
-        console.error('No se recibió código de Spotify');
-        this.navigateToHome();
+        this.handleRedirect();
         return;
       }
 
       try {
-        // Parsear el estado
         const stateData = JSON.parse(state);
-        const { userId, userName } = stateData;
-
-        // Obtener el token
+        
         this.datesService.getSpotifyToken(code).subscribe({
           next: (response) => {
-            // Guardar tokens
             localStorage.setItem('spotify_token', response.access_token);
             if (response.refresh_token) {
               localStorage.setItem('spotify_refresh_token', response.refresh_token);
             }
-
-            // Navegar usando Router en lugar de window.location
-            this.navigateToUserPage(userId, userName);
+            this.handleRedirect(stateData.userId, stateData.userName);
           },
           error: (err) => {
             console.error('Error al obtener token:', err);
-            this.navigateToUserPage(userId, userName);
+            this.handleRedirect(stateData.userId, stateData.userName);
           }
         });
       } catch (e) {
-        console.error('Error al procesar callback:', e);
-        this.navigateToHome();
+        console.error('Error processing callback:', e);
+        this.handleRedirect();
       }
     });
   }
 
-  private navigateToUserPage(userId: string, userName: string) {
-    // Usar Router.navigate en lugar de window.location
-    this.router.navigate(['/citas', userId, userName])
-      .catch(err => {
-        console.error('Error en navegación:', err);
-        this.navigateToHome();
-      });
-  }
-
-  private navigateToHome() {
-    this.router.navigate(['/']);
+  private handleRedirect(userId?: string, userName?: string) {
+    if (userId && userName) {
+      // Usar window.location.href para una redirección completa
+      window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${userName}`;
+    } else {
+      window.location.href = 'https://citasmedicas4.netlify.app/citas';
+    }
   }
 }
