@@ -50,7 +50,7 @@ interface SpotifyTokenResponse {
    private readonly SPOTIFY_REDIRECT_URI = 'https://citasmedicas4.netlify.app/spotify-callback';
    private readonly SPOTIFY_API_URL = 'https://api.spotify.com/v1';
 
-  private readonly BASE_URL = 'https://citasmedicas4.netlify.app';
+  public readonly BASE_URL = 'https://citasmedicas4.netlify.app';
    
 
    private logoutSubject = new Subject<void>();
@@ -436,16 +436,21 @@ playTrack(trackUri: string, deviceId: string): Observable<any> {
       'app-remote-control'
     ].join(' ');
   
+    const state = JSON.stringify({
+      userId,
+      userName,
+      return_path: `/citas/${userId}/${userName}`
+    });
+
     const params = new URLSearchParams({
       client_id: this.SPOTIFY_CLIENT_ID,
       response_type: 'code',
-      redirect_uri: `${this.BASE_URL}/spotify-callback`,
+      redirect_uri: `${this.BASE_URL}/spotify-callback`,  // URL exacta que debe coincidir con la configurada en Spotify
       scope: scopes,
       show_dialog: 'true',
-      state: JSON.stringify({ userId, userName })
+      state: state
     });
   
-    // Usar window.location.href para una redirección completa
     window.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
 

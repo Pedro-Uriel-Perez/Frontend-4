@@ -40,20 +40,15 @@ import { take } from 'rxjs/operators';
 export class SpotifyCallbackComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
-    private router: Router,
     private datesService: DatesService
   ) {}
 
   ngOnInit() {
-    this.route.queryParams.pipe(take(1)).subscribe(params => {
-      const code = params['code'];
-      const state = params['state'];
+    const urlParams = new URLSearchParams(window.location.search);
+    const code = urlParams.get('code');
+    const state = urlParams.get('state');
 
-      if (!code) {
-        this.handleRedirect();
-        return;
-      }
-
+    if (code && state) {
       try {
         const stateData = JSON.parse(state);
         
@@ -63,26 +58,21 @@ export class SpotifyCallbackComponent implements OnInit {
             if (response.refresh_token) {
               localStorage.setItem('spotify_refresh_token', response.refresh_token);
             }
-            this.handleRedirect(stateData.userId, stateData.userName);
+            
+            // Redirección directa a la página de citas
+            window.location.href = this.datesService.BASE_URL + stateData.return_path;
           },
           error: (err) => {
             console.error('Error al obtener token:', err);
-            this.handleRedirect(stateData.userId, stateData.userName);
+            window.location.href = this.datesService.BASE_URL + stateData.return_path;
           }
         });
       } catch (e) {
-        console.error('Error processing callback:', e);
-        this.handleRedirect();
+        console.error('Error al procesar callback:', e);
+        window.location.href = this.datesService.BASE_URL + '/citas';
       }
-    });
-  }
-
-  private handleRedirect(userId?: string, userName?: string) {
-    if (userId && userName) {
-      // Usar window.location.href para una redirección completa
-      window.location.href = `https://citasmedicas4.netlify.app/citas/${userId}/${userName}`;
     } else {
-      window.location.href = 'https://citasmedicas4.netlify.app/citas';
+      window.location.href = this.datesService.BASE_URL + '/citas';
     }
   }
 }
