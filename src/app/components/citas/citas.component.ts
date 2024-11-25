@@ -151,6 +151,8 @@ mensajes: any[] = [];
 nuevoMensaje: string = '';
 
 
+
+
 constructor(
   private datesService: DatesService,
   private route: ActivatedRoute,
@@ -166,21 +168,30 @@ constructor(
   }
 }
 
-private cargarDatosIniciales(userId: string, userName: string) {
-  this.idPaciente = userId;
-  this.nombrePaciente = userName;
-  this.welcomeMessage = `Bienvenido, ${this.nombrePaciente}!`;
-  this.medicosFiltrados = [...this.medicos];
-  this.inicializarFiltros();
-  this.cargarHistorialCitas();
-  this.cargarCitas();
-  this.obtenerCoordenadasMedicos();
-}
 
 
-   mostrarUbicacionMedico(medico: any) {
-    this.medicoSeleccionado = medico;
-    this.mostrarMapa = true;
+
+  private cargarDatosIniciales(userId: string, userName: string) {
+    this.idPaciente = userId;
+    this.nombrePaciente = userName;
+    this.welcomeMessage = `Bienvenido, ${this.nombrePaciente}!`;
+    this.medicosFiltrados = [...this.medicos];
+    this.inicializarFiltros();
+    this.cargarHistorialCitas();
+    this.cargarCitas();
+    this.obtenerCoordenadasMedicos();
+  }
+
+
+
+
+  mostrarUbicacionMedico(medico: any) {
+    if (medico && medico.latitud && medico.longitud) {
+      this.medicoSeleccionado = { ...medico };
+      this.mostrarMapa = true;
+    } else {
+      console.error('El médico no tiene coordenadas definidas');
+    }
   }
 
   cerrarMapa() {
@@ -262,23 +273,107 @@ private cargarDatosIniciales(userId: string, userName: string) {
     }
   }
 
+
+  //aqui enmpeza spotyfy 
+
+
+
+  ngOnInit(): void {
+
+    const user = this.datesService.getCurrentUser();
+    if (user) {
+      this.cargarDatosIniciales(user.id, user.name);
+    }
+
+    // Inicializar las suscripciones de logout
+    this.datesService.logout$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.stopSpotifyAndNavigate();
+      });
   
-  // En cualquier componente donde quieras iniciar la conexión con Spotify
-connectToSpotify() {
-  // Guardar la URL completa actual, incluyendo los parámetros
-  const currentUrl = window.location.href;
-  localStorage.setItem('originalUrl', currentUrl);
+    // Primero, intentamos obtener la información del usuario de Facebook
+    this.facebookUser = this.datesService.getCurrentUser();
+    
+    if (this.facebookUser && this.facebookUser.provider === 'FACEBOOK') {
+      this.isConnectedWithFacebook = true;
+      this.idPaciente = this.facebookUser.id;
+      this.nombrePaciente = this.facebookUser.name;
+      
+      // Verificar si estamos en la URL correcta
+      const currentUrl = this.router.url;
+      const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
+      
+      if (currentUrl !== expectedUrl) {
+        // Si no estamos en la URL correcta, redirigir
+        this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
+          replaceUrl: true // Esto reemplazará la entrada en el historial
+        });
+      } else {
+        this.procederConInicializacion();
+        this.checkSpotifyStatus();
+      }
+    } else {
+      // Si no hay usuario de Facebook, seguimos con la lógica existente
+      this.route.params.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(params => {
+        this.idPaciente = params['userId'] || localStorage.getItem('userId') || '';
+        this.nombrePaciente = params['userName'] || localStorage.getItem('userName') || '';
+        
+        if (!this.idPaciente || !this.nombrePaciente) {
+          this.route.queryParams.pipe(
+            takeUntil(this.destroy$)
+          ).subscribe(queryParams => {
+            const token = queryParams['token'];
+            if (token) {
+              localStorage.setItem('auth_token', token);
+              try {
+                const decodedToken = jwt_decode(token);
+                this.idPaciente = decodedToken.userId;
+                this.nombrePaciente = decodedToken.userName;
+                localStorage.setItem('userId', this.idPaciente);
+                localStorage.setItem('userName', this.nombrePaciente);
+              } catch (error) {
+                console.error('Error al decodificar el token:', error);
+              }
+            }
+            this.procederConInicializacion();
+            this.checkSpotifyStatus();
+          });
+        } else {
+          this.procederConInicializacion();
+          this.checkSpotifyStatus();
+        }
+      });
+      // Suscribirse a nuevos mensajes
+    this.datesService.getMensajesObservable().subscribe(mensajes => {
+      console.log('Nuevos mensajes recibidos:', mensajes);
+      this.mensajes = mensajes;
+      this.scrollToBottom();  
+    });
+    }
+  }
   
-  // Iniciar la autenticación de Spotify
+  
+
+
+  
+ // Método para conectar con Spotify
+ connectToSpotify() {
   this.datesService.initializeSpotifyAuth();
 }
 
-
+// Método para alternar la sección de Spotify
 toggleSpotifySection() {
-  this.showSpotifySection = !this.showSpotifySection;
+  if (!this.spotifyConnected) {
+    this.connectToSpotify();
+  } else {
+    this.showSpotifySection = !this.showSpotifySection;
+  }
 }
 
-// Opcional: método para verificar si la música está reproduciéndose
+// Verificar estado de Spotify
 checkSpotifyStatus() {
   if (this.spotifyConnected) {
     this.datesService.getWaitingRoomMusic().subscribe({
@@ -293,6 +388,7 @@ checkSpotifyStatus() {
     });
   }
 }
+
 
 // Método para manejar la detención de Spotify y navegación
 private stopSpotifyAndNavigate() {
@@ -410,94 +506,17 @@ private stopSpotifyAndNavigate() {
   
 
   ///hata aqui termina geolocalizacion
-
-
-  
-
-  ngOnInit(): void {
-
-    const user = this.datesService.getCurrentUser();
-    if (user) {
-      this.cargarDatosIniciales(user.id, user.name);
-    }
-
-    // Inicializar las suscripciones de logout
-    this.datesService.logout$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => {
-        this.stopSpotifyAndNavigate();
-      });
-  
-    // Primero, intentamos obtener la información del usuario de Facebook
-    this.facebookUser = this.datesService.getCurrentUser();
-    
-    if (this.facebookUser && this.facebookUser.provider === 'FACEBOOK') {
-      this.isConnectedWithFacebook = true;
-      this.idPaciente = this.facebookUser.id;
-      this.nombrePaciente = this.facebookUser.name;
-      
-      // Verificar si estamos en la URL correcta
-      const currentUrl = this.router.url;
-      const expectedUrl = `/citas/${this.idPaciente}/${encodeURIComponent(this.nombrePaciente)}`;
-      
-      if (currentUrl !== expectedUrl) {
-        // Si no estamos en la URL correcta, redirigir
-        this.router.navigate(['/citas', this.idPaciente, this.nombrePaciente], {
-          replaceUrl: true // Esto reemplazará la entrada en el historial
-        });
-      } else {
-        this.procederConInicializacion();
-        this.checkSpotifyStatus();
-      }
-    } else {
-      // Si no hay usuario de Facebook, seguimos con la lógica existente
-      this.route.params.pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(params => {
-        this.idPaciente = params['userId'] || localStorage.getItem('userId') || '';
-        this.nombrePaciente = params['userName'] || localStorage.getItem('userName') || '';
-        
-        if (!this.idPaciente || !this.nombrePaciente) {
-          this.route.queryParams.pipe(
-            takeUntil(this.destroy$)
-          ).subscribe(queryParams => {
-            const token = queryParams['token'];
-            if (token) {
-              localStorage.setItem('auth_token', token);
-              try {
-                const decodedToken = jwt_decode(token);
-                this.idPaciente = decodedToken.userId;
-                this.nombrePaciente = decodedToken.userName;
-                localStorage.setItem('userId', this.idPaciente);
-                localStorage.setItem('userName', this.nombrePaciente);
-              } catch (error) {
-                console.error('Error al decodificar el token:', error);
-              }
-            }
-            this.procederConInicializacion();
-            this.checkSpotifyStatus();
-          });
-        } else {
-          this.procederConInicializacion();
-          this.checkSpotifyStatus();
-        }
-      });
-      // Suscribirse a nuevos mensajes
-    this.datesService.getMensajesObservable().subscribe(mensajes => {
-      console.log('Nuevos mensajes recibidos:', mensajes);
-      this.mensajes = mensajes;
-      this.scrollToBottom();  
-    });
-    }
-  }
   
   
+
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
-
   
+
+
+
   private procederConInicializacion(): void {
     if (this.idPaciente && this.nombrePaciente) {
       // Verificar Facebook URL
