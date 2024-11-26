@@ -110,15 +110,26 @@ deviceId$ = this.deviceId.asObservable();
 
 
 private initFirebase() {
+    //const firebaseConfig = {
+      //apiKey: "AIzaSyBKQwLEFVXZD3XWkfaRMtlrph9UQQOTVIc",
+      //authDomain: "chat-medico-paciente-31a7c.firebaseapp.com",
+      //databaseURL: "https://chat-medico-paciente-31a7c-default-rtdb.firebaseio.com", // Esta URL es importante
+      //projectId: "chat-medico-paciente-31a7c",
+      //storageBucket: "chat-medico-paciente-31a7c.appspot.com",
+      //messagingSenderId: "576013986168",
+      //appId: "1:576013986168:web:ba0f4359a824a8aa02408d",
+      //measurementId: "G-JGTSLWB92R"
+    //};
+
   const firebaseConfig = {
-    apiKey: "AIzaSyBKQwLEFVXZD3XWkfaRMtlrph9UQQOTVIc",
-    authDomain: "chat-medico-paciente-31a7c.firebaseapp.com",
-    databaseURL: "https://chat-medico-paciente-31a7c-default-rtdb.firebaseio.com", // Esta URL es importante
-    projectId: "chat-medico-paciente-31a7c",
-    storageBucket: "chat-medico-paciente-31a7c.appspot.com",
-    messagingSenderId: "576013986168",
-    appId: "1:576013986168:web:ba0f4359a824a8aa02408d",
-    measurementId: "G-JGTSLWB92R"
+    apiKey: "AIzaSyANNxXhSH1NkZUvc02nawR8NbqamT5uiXA",
+    authDomain: "citas-medicas-8f620.firebaseapp.com",
+    databaseURL: "https://citas-medicas-8f620-default-rtdb.firebaseio.com",
+    projectId: "citas-medicas-8f620",
+    storageBucket: "citas-medicas-8f620.firebasestorage.app",
+    messagingSenderId: "384642995899",
+    appId: "1:384642995899:web:fca428031dcec0ffaa7b9e",
+    measurementId: "G-M1R969MB85"
   };
 
   const app = initializeApp(firebaseConfig);
